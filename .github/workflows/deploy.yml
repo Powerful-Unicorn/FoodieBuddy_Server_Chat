@@ -89,7 +89,7 @@ on:
 env:
   DOCKER_IMAGE: ghcr.io/${{ github.actor }}/foodiebuddy_chat
   VERSION: ${{ github.sha }}
-  NAME: minseo
+  NAME: foodiebuddy_chat
 
 jobs:
   build:
