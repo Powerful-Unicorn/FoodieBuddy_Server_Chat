@@ -128,7 +128,7 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ env.DOCKER_IMAGE }}:latest
-          platform: linux/amd64
+          platform: linux/amd64,linux/arm64
   
   deploy:
     needs: build
@@ -148,6 +148,6 @@ jobs:
       - name: Docker run
         run: |
           sudo docker stop ${{ env.NAME }} && sudo docker rm ${{ env.NAME }} && sudo docker rmi ${{ env.DOCKER_IMAGE }}:latest
-          # sudo docker run -d -p 8000:8000 --name ${{ env.NAME }} --restart always ${{ env.DOCKER_IMAGE }}:latest
-          sudo docker run --platform linux/amd64 -d -p 8000:8000 --name foodiebuddy_chat --restart always ghcr.io/minseoooooo/foodiebuddy_chat:latest
+          sudo docker run --platform linux/amd64 -d -p 8000:8000 --name ${{ env.NAME }} --restart always ${{ env.DOCKER_IMAGE }}:latest
+          # sudo docker run --platform linux/amd64 -d -p 8000:8000 --name foodiebuddy_chat --restart always ghcr.io/minseoooooo/foodiebuddy_chat:latest
 
