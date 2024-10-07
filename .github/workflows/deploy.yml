@@ -69,9 +69,9 @@ jobs:
       - name: Create .env file
         run: |
           touch .env
-          echo "$DEV_ENV" > .env
+          echo "$ENV" > .env
         env:
-          DEV_ENV: ${{ secrets.DEV_ENV }}
+          DEV_ENV: ${{ secrets.ENV }}
 
       - name: Docker run
         run: |
