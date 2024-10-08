@@ -79,6 +79,6 @@ jobs:
           # sudo docker rmi -f ${{ env.DOCKER_IMAGE }}:latest || true
           # sudo docker pull ${{ env.DOCKER_IMAGE }}:latest
           sudo docker run -d -p 8000:8000 --name ${{ env.NAME }} --restart always \
-          --platform linux/amd64 \
+          --platform linux/arm64 \
           -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
           ${{ env.DOCKER_IMAGE }}:latest
