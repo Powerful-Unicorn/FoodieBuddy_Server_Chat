@@ -77,7 +77,7 @@ jobs:
         run: |
           docker stop ${{ env.NAME }} || true
           docker rm ${{ env.NAME }} || true
-          docker rmi -f $(docker images -aq) || true
+          docker rmi -f ${{ env.DOCKER_IMAGE }} || true
           docker pull ${{ env.DOCKER_IMAGE }}:latest
           docker run -d -p 80:80 --name ${{ env.NAME }} --restart always \
           -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
