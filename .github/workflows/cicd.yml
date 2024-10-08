@@ -75,10 +75,10 @@ jobs:
 
       - name: Docker run
         run: |
-          docker stop ${{ env.NAME }} || true
-          docker rm ${{ env.NAME }} || true
-          docker rmi -f ${{ env.DOCKER_IMAGE }} || true
-          docker pull ${{ env.DOCKER_IMAGE }}:latest
-          docker run -d -p 80:80 --name ${{ env.NAME }} --restart always \
+          sudo docker stop ${{ env.NAME }} || true
+          sudo docker rm ${{ env.NAME }} || true
+          sudo docker rmi -f ${{ env.DOCKER_IMAGE }}:latest || true
+          sudo docker pull ${{ env.DOCKER_IMAGE }}:latest
+          sudo docker run -d -p 80:80 --name ${{ env.NAME }} --restart always \
           -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
           ${{ env.DOCKER_IMAGE }}:latest
