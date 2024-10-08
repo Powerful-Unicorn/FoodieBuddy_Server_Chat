@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.9
+FROM arm64v8/ubuntu
 
 # Set the working directory in the container
 WORKDIR /app
