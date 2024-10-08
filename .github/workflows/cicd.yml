@@ -3,8 +3,6 @@ name: ci/cd
 on:
   push:
     branches: [ deploy ]
-  pull_request:
-    branches: [ deploy ]
 
 env:
   DOCKER_IMAGE: ghcr.io/${{ github.actor }}/foodiebuddy_chat
