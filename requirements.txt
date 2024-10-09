@@ -37,8 +37,10 @@ uvloop==0.20.0
 watchfiles==0.24.0
 websockets==13.1
 yarl==1.13.1
-langchain-openai
-langchain
-langchain-core
-langchain-community
+langchain==0.3.3
+langchain-community==0.3.2
+langchain-core==0.3.10
+langchain-openai==0.2.2
+langchain-text-splitters==0.3.0
+
 
