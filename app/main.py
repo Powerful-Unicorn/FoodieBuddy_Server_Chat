@@ -7,6 +7,13 @@ from app.config import app  # 여기서 app을 import
 from app.chatbot import get_chat_response
 
 
+# 랭체인 관련 import들
+from langchain_openai import ChatOpenAI
+from langchain_core.output_parsers import StrOutputParser
+from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+
 # main.py는 FastAPI 프로젝트의 전체적인 환경을 설정하는 파일
 # 포트번호는 8000
 app = FastAPI()
@@ -17,18 +24,86 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 # WebSocket 핸들러
 @app.websocket("/recommendation")
 async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    await websocket.send_text("안녕안녕 푸디버디 화이팅")
+    await websocket.accept() # 웹소켓 연결 accept
+
+    #########
+
+    user_sample = [
+        {"name": "John",
+         "diet": {"meat": ["red meat", "other meat"],
+                  "dairy": ["milk"],
+                  "seafood": ["shrimp"],
+                  "gluten(wheat)": []
+                  }},
+        {"name": "Julia",
+         "diet": {"meat": ["red meat"],
+                  "dairy": ["milk", "cheese"],
+                  "honey": [],
+                  "nuts": ["peanuts"],
+                  "gluten(wheat)": [],
+                  "vegetables": ["tomato"]
+                  }},
+    ]
+
+    user_diet = user_sample[0]["diet"]
+    str_user_diet = ""
+
+    for category in user_diet:
+        str_user_diet += category + ":"
+        for i in user_diet[category]:
+            str_user_diet += i + ","
+
+    ###########
+
+    # 1. 채팅 상호작용 시작 전
+    model = ChatOpenAI(model="gpt-4o")
+    chat_history = ChatMessageHistory()
+    recommend_prompt = f"""
+      ## Instructions
+      You are a kind expert in Korean cuisine. You will chat with a user in English to recommend a dish to the user based on the user's dietary restrictions and additional information.
+      The user's dietary restrictions are {str_user_diet}.
+
+      You should start the conversation and ask which type of dish the user want to try.
+      Based on the user's answer, suggest a dish what the user can eat for the meal. You must start your output with "[the dish name in English]". For example, "[Kimchi Stew]". Then explain the dish in detail.
+
+      If the user don't like the suggestion, ask the reason and suggest another dish.
+      If the user decide what to eat, end the conversation.
+      """
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", recommend_prompt),
+            MessagesPlaceholder(variable_name="messages"),
+        ]
+    )
+
+    chain = prompt | model
 
 
+    # 2. 채팅 상호작용 시작 (while문 안에서 ai 와 user 가 메시지 주고받는 과정 반복)
     try:
         while True:
-            data = await websocket.receive_text()
-            # ChatGPT API로 응답 가져오기
-            response = await get_chat_response(data)
-            await websocket.send_text(response)
+            response = chain.invoke({"messages": chat_history.messages}) # recommendation 플로우에선 챗봇이 먼저 말함
+            chat_history.add_ai_message(response.content)
+
+            # if response.content.startswith("["):
+            #     dish_name = re.search(r'\[([\D]+)\]', response.content).group(1)
+            #     dishimg_gen(dish_name)
+            #     response.content = response.content[len(dish_name) + 2:].lstrip()
+
+            await websocket.send_text(response.content) # 챗봇이 한 말 send
+
+            user_message = await websocket.receive_text()  # 유저가 한 말 receive
+            if user_message.lower() == 'x':
+                await websocket.send_text("Chat ended.")  # 챗봇이 한 말 send
+                break
+            chat_history.add_user_message(user_message)
+            # return chat_history.messages
+
     except WebSocketDisconnect:
         print("Client disconnected")
+
+
 
 
 origins = [ # 여기에 허용할 프론트 접근을 추가하면 되는듯
