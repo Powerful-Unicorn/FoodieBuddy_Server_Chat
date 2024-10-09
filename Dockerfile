@@ -17,7 +17,7 @@ WORKDIR /code
 ## Command to run FastAPI with Uvicorn
 #CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
-
+RUN pip install --upgrade openai
 # 의존성 설치
 COPY ./requirements.txt /code/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
@@ -27,4 +27,4 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 COPY ./app /code/app
 
 # 어플리케이션 실행
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app --reload", "--host", "0.0.0.0", "--port", "8000"]
