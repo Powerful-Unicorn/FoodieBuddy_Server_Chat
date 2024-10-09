@@ -18,6 +18,8 @@ WORKDIR /code
 #CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 RUN pip install --upgrade pip
+RUN apt-get update && apt-get install -y cmake
+
 
 # 의존성 설치
 COPY ./requirements.txt /code/requirements.txt
