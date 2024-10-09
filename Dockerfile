@@ -17,6 +17,8 @@ WORKDIR /code
 ## Command to run FastAPI with Uvicorn
 #CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
+RUN pip install --upgrade pip
+
 # 의존성 설치
 COPY ./requirements.txt /code/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
