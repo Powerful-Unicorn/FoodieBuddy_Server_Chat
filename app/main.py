@@ -15,9 +15,12 @@ app = FastAPI()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # WebSocket 핸들러
-@app.websocket("/ws")
+@app.websocket("/recommendation")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    await websocket.send_text("안녕안녕 푸디버디 화이팅")
+
+
     try:
         while True:
             data = await websocket.receive_text()
