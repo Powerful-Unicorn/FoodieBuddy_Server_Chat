@@ -126,6 +126,8 @@ def dishimg_gen(dish_name) -> bytes:  # 바이트 스트림 타입을 return
     sd_prompt += search_ingredients(dish_name)
     sd_prompt += search_recipe(dish_name)
 
+    print(sd_prompt)  # 디버깅용 출력
+
     # Stability AI API 요청
     response = requests.post(
         f"https://api.stability.ai/v2beta/stable-image/generate/ultra",
