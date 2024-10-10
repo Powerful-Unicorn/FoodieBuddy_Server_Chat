@@ -105,6 +105,7 @@ def scrape_website(url):
 
 def search_recipe(dish_name):
     search_results = google_search(f"How to cook {dish_name}")
+    print(search_results)  # search_results가 반환하는 데이터를 확인합니다.
     url = next((result['link'] for result in search_results['organic_results'] if
                 result['link'].startswith('https://www.maangchi.com')), None)
 
