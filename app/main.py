@@ -44,7 +44,7 @@ def search_ingredients(dish_name):
 
     url = 'http://apis.data.go.kr/1390802/AgriFood/FdFood/getKoreanFoodFdFoodList'
     myKey = 'API key'
-    params = {'serviceKey': '6KMoh6rjEGBq/v8QvaX/3/KAj0DppT17EgLbwzR1IrrWDX+yiTuMtBEgo35a9fgZHz+5aW/wzd0Kv4RDo7Zuyg==',
+    params = {'serviceKey': f'{ingredients_api_key}',
               'service_Type': 'xml', 'Page_No': '1', 'Page_Size': '20', 'food_Name': response}
 
     ingredients_response = requests.get(url, params=params)
