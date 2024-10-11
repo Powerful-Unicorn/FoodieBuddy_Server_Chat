@@ -146,7 +146,7 @@ def dishimg_gen(dish_name) -> bytes:  # 바이트 스트림 타입을 return
     response = requests.post(
         f"https://api.stability.ai/v2beta/stable-image/generate/ultra",
         headers={
-            "authorization": f"{stability_api_key}",
+            "authorization": "sk-TIMRKlFafzEJGCro7de6QVt27PB1ufe8m2w6B1JwpLMUJxO5",
             "accept": "image/*"
         },
         files={"none": ''},
