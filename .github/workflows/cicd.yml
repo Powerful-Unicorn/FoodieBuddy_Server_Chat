@@ -23,11 +23,11 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "${{ secrets.MY_ENV }}" >> .env
-#          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
-#          echo "INGREDIENTS_API_KEY=${{ secrets.INGREDIENTS_API_KEY }}" >> .env
-#          echo "STABILITY_API_KEY=${{ secrets.STABILITY_API_KEY }}" >> .env
-#          echo "SERP_API_KEY=${{ secrets.SERP_API_KEY }}" >> .env
+#          echo "${{ secrets.MY_ENV }}" >> .env
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
+          echo "INGREDIENTS_API_KEY=${{ secrets.INGREDIENTS_API_KEY }}" >> .env
+          echo "STABILITY_API_KEY=${{ secrets.STABILITY_API_KEY }}" >> .env
+          echo "SERP_API_KEY=${{ secrets.SERP_API_KEY }}" >> .env
         shell: bash
       
       - name: Set up QEMU
