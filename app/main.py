@@ -105,7 +105,11 @@ def scrape_website(url):
 
 def search_recipe(dish_name):
     search_results = google_search(f"How to cook {dish_name}")
-    print(search_results)  # search_results가 반환하는 데이터를 확인합니다.
+
+    print("print(search_results)>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    print(search_results)  # search_results가 반환하는 데이터를 확인합니다. 디버깅용 출력
+    print("print(search_results)<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+
     url = next((result['link'] for result in search_results['organic_results'] if
                 result['link'].startswith('https://www.maangchi.com')), None)
 
@@ -126,8 +130,9 @@ def dishimg_gen(dish_name) -> bytes:  # 바이트 스트림 타입을 return
     sd_prompt += search_ingredients(dish_name)
     sd_prompt += search_recipe(dish_name)
 
+    print("print(sd_prompt)>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     print(sd_prompt)  # 디버깅용 출력
-
+    print("print(sd_prompt)<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     # Stability AI API 요청
     response = requests.post(
         f"https://api.stability.ai/v2beta/stable-image/generate/ultra",
