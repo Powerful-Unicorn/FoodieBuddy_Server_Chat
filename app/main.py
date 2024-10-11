@@ -29,6 +29,7 @@ stability_api_key = os.getenv("STABILITY_API_KEY")
 
 
 def search_ingredients(dish_name):
+    print("search_ingredients>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     model = ChatOpenAI()
 
     chat_prompt = ChatPromptTemplate.from_messages([
@@ -74,16 +75,20 @@ def search_ingredients(dish_name):
 
             count_item += 1
 
+        print("search_ingredients<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         return "Main ingredients are " + ingredients
 
 
 def google_search(query):
+    print("google_search>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     search_url = f"https://serpapi.com/search.json?q={query}&api_key={serp_api_key}"
     response = requests.get(search_url)
+    print("google_search<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     return response.json()
 
 
 def scrape_website(url):
+    print("scrape_website>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
     directions_section = soup.find('h2', string='Directions')  # 'Directions' 섹션 찾기
@@ -100,10 +105,12 @@ def scrape_website(url):
             for i, item in enumerate(list_items, 1):
                 recipe += f"\n{i}. {item.get_text(strip=True)}"
 
+    print("scrape_website<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     return recipe
 
 
 def search_recipe(dish_name):
+    print("search_recipe>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     search_results = google_search(f"How to cook {dish_name}")
 
     print("print(search_results)>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
@@ -114,14 +121,16 @@ def search_recipe(dish_name):
                 result['link'].startswith('https://www.maangchi.com')), None)
 
     if url is None:
+        print("search_recipe<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         return ""
 
     recipe = scrape_website(url)
-
+    print("search_recipe<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
     return "Generate the image based on the recipe below:" + recipe
 
 
 def dishimg_gen(dish_name) -> bytes:  # 바이트 스트림 타입을 return
+    print("dishimg_gen>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
     dish_name = dish_name.replace("[", "").replace("]", "")  # dish_name에서 대괄호 제거
     sd_prompt = f"A realistic image of {dish_name}"  # 프롬프트
@@ -148,13 +157,16 @@ def dishimg_gen(dish_name) -> bytes:  # 바이트 스트림 타입을 return
     )
 
     if response.status_code == 200:  # 응답이 성공적이면 바이트 스트림을 바로 return (파일로 변환한 후 저장하는 코드 x)
+        print("dishimg_gen<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         return response.content
     # filename = dish_name.lower().replace(" ", "")
     # with open(f"./{filename}_test.txt", 'wb') as file:
     #   file.write(response.content)
 
     else:
+        print("dishimg_gen<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         raise Exception(str(response.json()))
+
 
 
 # WebSocket 핸들러
