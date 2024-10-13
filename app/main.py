@@ -252,7 +252,7 @@ async def websocket_endpoint(websocket: WebSocket):
             response = chain.invoke({"messages": chat_history.messages})  # recommendation 플로우에선 챗봇이 먼저 말함
             chat_history.add_ai_message(response.content)
 
-            await websocket.send_text(response.content)  # 챗봇이 한 말 send
+
 
             if response.content.startswith("["):  # 메뉴 이미지 생성하는 코드
                 dish_name = re.search(r'\[([\D]+)\]', response.content).group(1)
@@ -264,7 +264,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 except Exception as e:
                     await websocket.send_text(f"Error: {str(e)}")
 
-
+            await websocket.send_text(response.content)  # 챗봇이 한 말 send
 
             user_message = await websocket.receive_text()  # 유저가 한 말 receive
             if user_message.lower() == 'x':
