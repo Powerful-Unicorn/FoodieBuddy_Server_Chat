@@ -54,7 +54,7 @@ def search_ingredients(dish_name):
 
     result_msg_element = root.find('.//result_Msg')
 
-    if result_msg_element is not None and result_msg_element.text == '요청 데이터 없음':
+    if result_msg_element is None or result_msg_element.text == '요청 데이터 없음':
         return ""
     else:
         item = root.find('body/items').findall('item')[0]
@@ -76,7 +76,7 @@ def search_ingredients(dish_name):
             count_item += 1
 
         print("search_ingredients<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-        return "Main ingredients are " + ingredients
+        return "\nMain ingredients are " + ingredients
 
 
 def google_search(query):
@@ -126,18 +126,19 @@ def search_recipe(dish_name):
 
     recipe = scrape_website(url)
     print("search_recipe<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-    return "Generate the image based on the recipe below:" + recipe
+    return "\nGenerate the image based on the recipe below:" + recipe
 
 
 def dishimg_gen(dish_name) -> bytes:  # 바이트 스트림 타입을 return
     print("dishimg_gen>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
     dish_name = dish_name.replace("[", "").replace("]", "")  # dish_name에서 대괄호 제거
+    if dish_name == "Patbingsu": dish_name = "Bingsu"
     sd_prompt = f"A realistic image of {dish_name}"  # 프롬프트
 
     # sd_prompt에 재료 및 레시피 추가
-    sd_prompt += search_ingredients(dish_name)
-    sd_prompt += search_recipe(dish_name)
+    # sd_prompt += search_ingredients(dish_name)
+    # sd_prompt += search_recipe(dish_name)
 
     print("print(sd_prompt)>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     print(sd_prompt)  # 디버깅용 출력
@@ -219,14 +220,14 @@ async def websocket_endpoint(websocket: WebSocket):
       1. Start the conversation and ask which type of dish the user wants to try.
       2. Based on the user's answer and user's dietary restrictions, suggest a dish what the user can eat for the meal. 
          YOU MUST SAY ONLY IN THE FORM BELOW INCLUDING LINEBREAKS.:
-         "[THE DISH NAME IN ENGLISH] **The dish name in English(The pronunciation of its korean name)**
+         "[The pronunciation of the korean dish name] **The dish name in English(The pronunciation of its korean name)**
          The basic information of the dish in one sentence.
 
          The main ingredients of the dish in one sentence. The information related to the user's dietary restrictions in one sentence.
 
          Several hashtags related to the dish."
 
-         For example, "[Kimchi Stew] **Kimchi Stew(Kimchi Jjigae)**
+         For example, "[Kimchi Jjigae] **Kimchi Stew(Kimchi Jjigae)**
          It is a classic Korean dish that's perfect for those who enjoy a spicy and warming meal.
 
          It's made with fermented kimchi, tofu, and various vegetables, simmered together to create a rich and flavorful broth. It's traditionally made with pork, but it can easily be adapted to fit your dietary restrictions by leaving out the meat.
