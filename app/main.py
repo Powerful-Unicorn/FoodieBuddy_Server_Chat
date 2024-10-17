@@ -180,13 +180,11 @@ async def websocket_endpoint(websocket: WebSocket):
     user_sample = [
         {"name": "John",
          "diet": {"meat": ["red meat", "other meat"],
-                  "dairy": ["milk"],
                   "seafood": ["shrimp"],
                   "gluten(wheat)": []
                   }},
         {"name": "Julia",
          "diet": {"meat": ["red meat"],
-                  "dairy": ["milk", "cheese"],
                   "honey": [],
                   "nuts": ["peanuts"],
                   "gluten(wheat)": [],
