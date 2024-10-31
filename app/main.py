@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends
 import openai
 import os
 import re
@@ -6,6 +6,7 @@ import requests
 import xml.etree.ElementTree as ET
 from starlette.middleware.cors import CORSMiddleware
 
+from sqlalchemy.orm import Session
 from app.config import app  # 여기서 app을 import
 from app.chatbot import get_chat_response
 
@@ -176,7 +177,7 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()  # 웹소켓 연결 accept
 
     #########
-
+# 이부분 db의 dietary restriction을 가져오는 코드로 수정해야함
     user_sample = [
         {"name": "John",
          "diet": {"meat": ["red meat", "other meat"],
@@ -298,3 +299,23 @@ app.add_middleware(
 @app.get("/hello")  # /hello url로 요청이 발생하면 아래의 함수를 실행
 def hello():
     return {"message": "안녕하세요 파이보"}  # <- 이건 딕셔너리 형식, 근데 자동으로 json 형태로 바뀌어서 response 보냄
+
+
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.get("/")
+def read_root(db: Session = Depends(get_db)):
+    return {"message": "Hello World"}
+
+
+
+@app.get("/items/")
+def read_items(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    items = db.query(YourModel).offset(skip).limit(limit).all()
+    return items
