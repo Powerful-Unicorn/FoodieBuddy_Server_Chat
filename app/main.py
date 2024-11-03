@@ -18,6 +18,8 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
+from app.database import fetch_user
+
 # main.py는 FastAPI 프로젝트의 전체적인 환경을 설정하는 파일
 # 포트번호는 8000
 app = FastAPI()
@@ -301,21 +303,6 @@ def hello():
     return {"message": "안녕하세요 파이보"}  # <- 이건 딕셔너리 형식, 근데 자동으로 json 형태로 바뀌어서 response 보냄
 
 
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-@app.get("/")
-def read_root(db: Session = Depends(get_db)):
-    return {"message": "Hello World"}
-
-
-
-@app.get("/items/")
-def read_items(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    items = db.query(YourModel).offset(skip).limit(limit).all()
-    return items
+@app.get(("/user"))
+def get_user():
+    fetch_user()
