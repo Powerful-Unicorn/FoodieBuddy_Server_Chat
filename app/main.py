@@ -1,3 +1,6 @@
+import base64
+from io import BytesIO
+
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends
 import openai
 import os
@@ -7,6 +10,8 @@ import xml.etree.ElementTree as ET
 from starlette.middleware.cors import CORSMiddleware
 
 from sqlalchemy.orm import Session
+
+from app.chat.recommendation import dishimg_gen
 from app.config import app  # 여기서 app을 import
 from app.chatbot import get_chat_response
 
@@ -19,10 +24,18 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 from app.database import fetch_user
+from fastapi.responses import HTMLResponse
+
+
+from typing import List
+import base64
+from io import BytesIO
+from PIL import Image  # 여기서 Image를 import
 
 # main.py는 FastAPI 프로젝트의 전체적인 환경을 설정하는 파일
 # 포트번호는 8000
 app = FastAPI()
+
 
 # 환경 변수 로드 (API 키 등)
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -30,180 +43,39 @@ ingredients_api_key = os.getenv("INGREDIENTS_API_KEY")
 serp_api_key = os.getenv("SERP_API_KEY")
 stability_api_key = os.getenv("STABILITY_API_KEY")
 
+#########
+# 이부분 db의 dietary restriction을 가져오는 코드로 수정해야함
+user_sample = [
+    {"name": "John",
+     "diet": {"meat": ["red meat", "other meat"],
+              "seafood": ["shrimp"],
+              "gluten(wheat)": []
+              }},
+    {"name": "Julia",
+     "diet": {"meat": ["red meat"],
+              "honey": [],
+              "nuts": ["peanuts"],
+              "gluten(wheat)": [],
+              "vegetables": ["tomato"]
+              }},
+]
 
-def search_ingredients(dish_name):
-    print("search_ingredients>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    model = ChatOpenAI()
+user_diet = user_sample[0]["diet"]
+str_user_diet = ""
 
-    chat_prompt = ChatPromptTemplate.from_messages([
-        ("system",
-         "Translate a korean dish name in korean without any explanation. Your answer MUST be a one korean word. Examples - Q:Kimchi jjigae A:김치찌개, Q:Tteokbokki A:떡볶이"),
-        ("user", "Q:{dish_name} A:"),
-    ])
-
-    chain = chat_prompt | model | StrOutputParser()
-
-    response = chain.invoke({"dish_name": f"{dish_name}", })
-
-    url = 'http://apis.data.go.kr/1390802/AgriFood/FdFood/getKoreanFoodFdFoodList'
-    myKey = 'API key'
-    params = {'serviceKey': '6KMoh6rjEGBq/v8QvaX/3/KAj0DppT17EgLbwzR1IrrWDX+yiTuMtBEgo35a9fgZHz+5aW/wzd0Kv4RDo7Zuyg==',
-              'service_Type': 'xml', 'Page_No': '1', 'Page_Size': '20', 'food_Name': response}
-
-    ingredients_response = requests.get(url, params=params)
-
-    xml_data = ingredients_response.content
-    root = ET.fromstring(xml_data)
-
-    result_msg_element = root.find('.//result_Msg')
-
-    if result_msg_element is None or result_msg_element.text == '요청 데이터 없음':
-        return ""
-    else:
-        item = root.find('body/items').findall('item')[0]
-        food_List = item.find('food_List').findall('food')
-
-        ingredients = ""
-        count_item = 0
-
-        for food in food_List:
-            fd_Eng_Nm = food.find('fd_Eng_Nm').text
-            ingredient = fd_Eng_Nm.split(',')[0]
-
-            if count_item == 0:
-                ingredients = ingredient
-            else:
-                ingredients = ingredients + ", " + ingredient
-                if count_item == 4: break
-
-            count_item += 1
-
-        print("search_ingredients<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-        return "\nMain ingredients are " + ingredients
+for category in user_diet:
+    str_user_diet += category + ":"
+    for i in user_diet[category]:
+        str_user_diet += i + ","
 
 
-def google_search(query):
-    print("google_search>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    search_url = f"https://serpapi.com/search.json?q={query}&api_key=d123f6ebd427f365cdab180754399edcd536d81fa81a13454ae4c17f4d700f04"
-    response = requests.get(search_url)
-    print("google_search<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-    return response.json()
-
-
-def scrape_website(url):
-    print("scrape_website>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    directions_section = soup.find('h2', string='Directions')  # 'Directions' 섹션 찾기
-    recipe_list = directions_section.find_all_next('ol')  # 모든 <ol> 찾기
-    recipe = ""
-
-    if directions_section is not None:
-        recipe_list = directions_section.find_all_next('ol')  # 모든 <ol> 찾기
-
-        for i in range(len(recipe_list)):
-            if i == len(recipe_list) - 1: break
-            list_items = recipe_list[i].find_all('li')  # <ol> 안의 모든 <li> 추출
-            recipe += f"\n#{i + 1}"
-            for i, item in enumerate(list_items, 1):
-                recipe += f"\n{i}. {item.get_text(strip=True)}"
-
-    print("scrape_website<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-    return recipe
-
-
-def search_recipe(dish_name):
-    print("search_recipe>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    search_results = google_search(f"How to cook {dish_name}")
-
-    print("print(search_results)>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    print(search_results)  # search_results가 반환하는 데이터를 확인합니다. 디버깅용 출력
-    print("print(search_results)<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
-    url = next((result['link'] for result in search_results['organic_results'] if
-                result['link'].startswith('https://www.maangchi.com')), None)
-
-    if url is None:
-        print("search_recipe<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-        return ""
-
-    recipe = scrape_website(url)
-    print("search_recipe<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-    return "\nGenerate the image based on the recipe below:" + recipe
-
-
-def dishimg_gen(dish_name) -> bytes:  # 바이트 스트림 타입을 return
-    print("dishimg_gen>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-
-    dish_name = dish_name.replace("[", "").replace("]", "")  # dish_name에서 대괄호 제거
-    if dish_name == "Patbingsu": dish_name = "Bingsu"
-    sd_prompt = f"A realistic image of {dish_name}"  # 프롬프트
-
-    # sd_prompt에 재료 및 레시피 추가
-    # sd_prompt += search_ingredients(dish_name)
-    # sd_prompt += search_recipe(dish_name)
-
-    print("print(sd_prompt)>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    print(sd_prompt)  # 디버깅용 출력
-    print("print(sd_prompt)<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-    # Stability AI API 요청
-    response = requests.post(
-        f"https://api.stability.ai/v2beta/stable-image/generate/ultra",
-        headers={
-            "authorization": "sk-TIMRKlFafzEJGCro7de6QVt27PB1ufe8m2w6B1JwpLMUJxO5",
-            "accept": "image/*"
-        },
-        files={"none": ''},
-        data={
-            "prompt": sd_prompt,
-            # "output_format": "png",
-        },
-    )
-
-    if response.status_code == 200:  # 응답이 성공적이면 바이트 스트림을 바로 return (파일로 변환한 후 저장하는 코드 x)
-        print("dishimg_gen<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-        return response.content
-    # filename = dish_name.lower().replace(" ", "")
-    # with open(f"./{filename}_test.txt", 'wb') as file:
-    #   file.write(response.content)
-
-    else:
-        print("dishimg_gen<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-        raise Exception(str(response.json()))
-
+###########
 
 
 # WebSocket 핸들러
 @app.websocket("/recommendation")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()  # 웹소켓 연결 accept
-
-    #########
-# 이부분 db의 dietary restriction을 가져오는 코드로 수정해야함
-    user_sample = [
-        {"name": "John",
-         "diet": {"meat": ["red meat", "other meat"],
-                  "seafood": ["shrimp"],
-                  "gluten(wheat)": []
-                  }},
-        {"name": "Julia",
-         "diet": {"meat": ["red meat"],
-                  "honey": [],
-                  "nuts": ["peanuts"],
-                  "gluten(wheat)": [],
-                  "vegetables": ["tomato"]
-                  }},
-    ]
-
-    user_diet = user_sample[0]["diet"]
-    str_user_diet = ""
-
-    for category in user_diet:
-        str_user_diet += category + ":"
-        for i in user_diet[category]:
-            str_user_diet += i + ","
-
-    ###########
 
     # 1. 채팅 상호작용 시작 전
     model = ChatOpenAI(model="gpt-4o")
@@ -258,9 +130,6 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             response = chain.invoke({"messages": chat_history.messages})  # recommendation 플로우에선 챗봇이 먼저 말함
-            chat_history.add_ai_message(response.content)
-
-
 
             if response.content.startswith("["):  # 메뉴 이미지 생성하는 코드
                 dish_name = re.search(r'\[([\D]+)\]', response.content).group(1)
@@ -273,13 +142,81 @@ async def websocket_endpoint(websocket: WebSocket):
                     await websocket.send_text(f"Error: {str(e)}")
 
             await websocket.send_text(response.content)  # 챗봇이 한 말 send
+            chat_history.add_ai_message(response.content)
 
             user_message = await websocket.receive_text()  # 유저가 한 말 receive
             if user_message.lower() == 'x':
                 await websocket.send_text("Chat ended.")  # 챗봇이 한 말 send
                 break
             chat_history.add_user_message(user_message)
-            # return chat_history.messages
+        # return chat_history.messages
+
+    except WebSocketDisconnect:
+        print("Client disconnected")
+
+
+@app.websocket("/askdish")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()  # 웹소켓 연결 accept
+
+    # 1. 채팅 상호작용 시작 전
+    model = ChatOpenAI(model="gpt-4o")
+    chat_history = ChatMessageHistory()
+
+    # askdish용 프롬프트
+    askdish_prompt = f"""
+    ## Instructions
+    You are a kind expert in Korean cuisine. You will chat with a user in English to help them understand a dish at a restaurant based on the user's dietary restrictions.
+    The user's dietary restrictions are {str_user_diet}. 
+
+    First, explain the dish from the image.
+    Next, check if the user have any question. If user ask any questions about the dish, explain it kindly.
+    """
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", askdish_prompt),
+            MessagesPlaceholder(variable_name="messages"),
+        ]
+    )
+
+    chain = prompt | model
+
+    # 2. 채팅 상호작용 시작 (while문 안에서 ai 와 user 가 메시지 주고받는 과정 반복)
+    try:
+        image_data = await websocket.receive_text()
+        # base64_img = data.decode('utf-8')
+
+        # 이미지 데이터가 "data:image/png;base64," 형태로 전송되었다고 가정합니다.
+        # if data.startswith("data:image"):
+        #     header, base64_image = data.split(",", 1)
+        #     image_data = base64.b64decode(base64_image)
+
+            # 이미지 확인 (선택적)
+            # dish_img = Image.open(BytesIO(image_data))
+            # dish_img.show()  # 또는 저장하고 싶다면, image.save("path/to/save/image.png")
+
+        # 대화 시작 멘트 - 밑반찬 설명
+        from app.chat.askdish import get_img_response
+        dish_explain = get_img_response(image_data, str_user_diet)
+        await websocket.send_text(dish_explain)
+        chat_history.add_ai_message(dish_explain)
+
+
+
+        while True:
+            user_message = await websocket.receive_text()  # 유저가 한 말 receive
+            if user_message.lower() == 'x':
+                await websocket.send_text("Chat ended.")  # 챗봇이 한 말 send
+                break
+            chat_history.add_user_message(user_message)
+
+            response = chain.invoke({"messages": chat_history.messages})
+            await websocket.send_text(response.content)  # 챗봇이 한 말 send
+            chat_history.add_ai_message(response.content)
+        # return chat_history.messages
+
+
 
     except WebSocketDisconnect:
         print("Client disconnected")
@@ -298,6 +235,7 @@ app.add_middleware(
 )
 
 
+
 @app.get("/hello")  # /hello url로 요청이 발생하면 아래의 함수를 실행
 def hello():
     return {"message": "안녕하세요 파이보"}  # <- 이건 딕셔너리 형식, 근데 자동으로 json 형태로 바뀌어서 response 보냄
@@ -306,3 +244,35 @@ def hello():
 @app.get(("/user"))
 def get_user():
     fetch_user()
+
+
+# Your HTML page
+html = """
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body>
+        <h1>WebSocket Chat</h1>
+        <label>Base64 Image Input:</label>
+        <input id="imageInput" type="text" />
+        <button onclick="sendMessage()">Send Image</button>
+        <script>
+            var ws = new WebSocket("ws://localhost:8000/recommendation");  // Ensure this matches your WebSocket endpoint
+            ws.onmessage = function(event) {
+                console.log("Response from server:", event.data);
+            };
+            function sendMessage() {
+                const imageInput = document.getElementById("imageInput").value;
+                ws.send(imageInput);
+            }
+        </script>
+    </body>
+</html>
+"""
+
+# Add this route to serve the HTML page
+@app.get("/", response_class=HTMLResponse)
+async def get_html():
+    return html
