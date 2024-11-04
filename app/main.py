@@ -1,27 +1,20 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends
-import openai
 import os
 import re
-from starlette.middleware.cors import CORSMiddleware
 
-
-from app.chat.recommendation import dishimg_gen
-
-
-# 랭체인 관련 import들
-from langchain_openai import ChatOpenAI
+import openai
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+# 랭체인 관련 import들
+from langchain_openai import ChatOpenAI
+from starlette.middleware.cors import CORSMiddleware
 
+from app.chat.recommendation import dishimg_gen
 from app.database import fetch_user
-from fastapi.responses import HTMLResponse
-
-
 
 # main.py는 FastAPI 프로젝트의 전체적인 환경을 설정하는 파일
 # 포트번호는 8000
 app = FastAPI()
-
 
 # 환경 변수 로드 (API 키 등)
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -178,17 +171,15 @@ async def websocket_endpoint(websocket: WebSocket):
         #     header, base64_image = data.split(",", 1)
         #     image_data = base64.b64decode(base64_image)
 
-            # 이미지 확인 (선택적)
-            # dish_img = Image.open(BytesIO(image_data))
-            # dish_img.show()  # 또는 저장하고 싶다면, image.save("path/to/save/image.png")
+        # 이미지 확인 (선택적)
+        # dish_img = Image.open(BytesIO(image_data))
+        # dish_img.show()  # 또는 저장하고 싶다면, image.save("path/to/save/image.png")
 
         # 대화 시작 멘트 - 밑반찬 설명
         from app.chat.askdish import get_img_response
         dish_explain = get_img_response(image_data, str_user_diet)
         await websocket.send_text(dish_explain)
         chat_history.add_ai_message(dish_explain)
-
-
 
         while True:
             user_message = await websocket.receive_text()  # 유저가 한 말 receive
@@ -221,7 +212,6 @@ app.add_middleware(
 )
 
 
-
 @app.get("/hello")  # /hello url로 요청이 발생하면 아래의 함수를 실행
 def hello():
     return {"message": "안녕하세요 파이보"}  # <- 이건 딕셔너리 형식, 근데 자동으로 json 형태로 바뀌어서 response 보냄
@@ -230,35 +220,3 @@ def hello():
 @app.get(("/user"))
 def get_user():
     fetch_user()
-
-
-# Your HTML page
-html = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Chat</title>
-    </head>
-    <body>
-        <h1>WebSocket Chat</h1>
-        <label>Base64 Image Input:</label>
-        <input id="imageInput" type="text" />
-        <button onclick="sendMessage()">Send Image</button>
-        <script>
-            var ws = new WebSocket("ws://localhost:8000/recommendation");  // Ensure this matches your WebSocket endpoint
-            ws.onmessage = function(event) {
-                console.log("Response from server:", event.data);
-            };
-            function sendMessage() {
-                const imageInput = document.getElementById("imageInput").value;
-                ws.send(imageInput);
-            }
-        </script>
-    </body>
-</html>
-"""
-
-# Add this route to serve the HTML page
-@app.get("/", response_class=HTMLResponse)
-async def get_html():
-    return html
