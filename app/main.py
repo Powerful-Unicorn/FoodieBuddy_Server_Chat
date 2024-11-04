@@ -1,25 +1,15 @@
-import base64
-from io import BytesIO
-
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends
 import openai
 import os
 import re
-import requests
-import xml.etree.ElementTree as ET
 from starlette.middleware.cors import CORSMiddleware
 
-from sqlalchemy.orm import Session
 
 from app.chat.recommendation import dishimg_gen
-from app.config import app  # 여기서 app을 import
-from app.chatbot import get_chat_response
 
-from bs4 import BeautifulSoup
 
 # 랭체인 관련 import들
 from langchain_openai import ChatOpenAI
-from langchain_core.output_parsers import StrOutputParser
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
@@ -27,10 +17,6 @@ from app.database import fetch_user
 from fastapi.responses import HTMLResponse
 
 
-from typing import List
-import base64
-from io import BytesIO
-from PIL import Image  # 여기서 Image를 import
 
 # main.py는 FastAPI 프로젝트의 전체적인 환경을 설정하는 파일
 # 포트번호는 8000

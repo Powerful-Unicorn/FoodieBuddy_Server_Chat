@@ -1,11 +1,9 @@
 import os
-import base64
 
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage, SystemMessage
-from langchain_community.chat_message_histories import ChatMessageHistory
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
 
 os.environ["OPENAI_API_KEY"] = "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"
 
