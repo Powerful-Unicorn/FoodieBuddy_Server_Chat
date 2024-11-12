@@ -1,3 +1,5 @@
+import base64
+import imghdr
 import os
 
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -44,10 +46,16 @@ def get_img_response(image_data, str_user_diet):
     # 밑반찬 답변 모델 - 파인 튜닝하면 여기에 쓸 모델 id가 바뀜
     model = ChatOpenAI(model="gpt-4o")
 
+    # image_data의 확장자 확인
+    image_binary = base64.b64decode(image_data)
+    extension = imghdr.what(None, h=image_binary)
+    print(f"Detected extension: {extension}")
+    print(f"image_url : data:image/{extension};base64,{image_data}")
+
     chain = get_img_response_prompt | model | StrOutputParser()
     response = chain.invoke({"question": "What's the name of this korean side dish?",
                              "diet": str_user_diet,
-                             "image_url": f"data:image/jpg;base64,{image_data}"
+                             "image_url": f"data:image/{extension};base64,{image_data}"
                              }
                             )
     return response
