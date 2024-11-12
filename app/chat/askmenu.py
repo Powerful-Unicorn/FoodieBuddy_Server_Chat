@@ -1,4 +1,5 @@
 import base64
+import imghdr
 import os
 import xml.etree.ElementTree as ET
 
@@ -159,10 +160,16 @@ def gen_get_img_response_prompt(param_dict):
 def get_img_response(image_data, str_user_diet):
     model = ChatOpenAI(model="gpt-4o")
 
+    # image_data의 확장자 확인
+    image_binary = base64.b64decode(image_data)
+    extension = imghdr.what(None, h=image_binary)
+    print(f"Detected extension: {extension}")
+    print(f"image_url : data:image/{extension};base64,{image_data}")
+
     chain = gen_get_img_response_prompt | model | StrOutputParser()
     response = chain.invoke({"question": "What are the list of the names of each dish of this image?",
                              "diet": str_user_diet,
-                             "image_url": f"data:image/jpeg;base64,{image_data}"
+                             "image_url": f"data:image/{extension};base64,{image_data}"
                              }
                             )
     return response
