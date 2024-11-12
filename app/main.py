@@ -137,7 +137,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 @app.websocket("/askdish")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket):  # askdish
     await websocket.accept()  # 웹소켓 연결 accept
 
     # 1. 채팅 상호작용 시작 전
