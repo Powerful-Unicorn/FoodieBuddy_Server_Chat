@@ -165,17 +165,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
     # 2. 채팅 상호작용 시작 (while문 안에서 ai 와 user 가 메시지 주고받는 과정 반복)
     try:
+        await websocket.send_text("Please upload an image of a dish! :)")  # 챗봇이 한 말 send
         image_data = await websocket.receive_text()
-        # base64_img = data.decode('utf-8')
-
-        # 이미지 데이터가 "data:image/png;base64," 형태로 전송되었다고 가정합니다.
-        # if data.startswith("data:image"):
-        #     header, base64_image = data.split(",", 1)
-        #     image_data = base64.b64decode(base64_image)
-
-        # 이미지 확인 (선택적)
-        # dish_img = Image.open(BytesIO(image_data))
-        # dish_img.show()  # 또는 저장하고 싶다면, image.save("path/to/save/image.png")
 
         # 대화 시작 멘트 - 밑반찬 설명
         from app.chat.askdish import get_img_response
@@ -236,6 +227,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
     # 2. 채팅 상호작용 시작 (while문 안에서 ai 와 user 가 메시지 주고받는 과정 반복)
     try:
+        await websocket.send_text("Please upload an image of a menu board! :)")  # 챗봇이 한 말 send
         # 1) 이미지 데이터 받기
         image_data = await websocket.receive_text()
         from app.chat.askmenu import get_img_response
