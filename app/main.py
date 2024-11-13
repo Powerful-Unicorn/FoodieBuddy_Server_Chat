@@ -166,11 +166,11 @@ async def websocket_endpoint(websocket: WebSocket):  # askdish
     # 2. 채팅 상호작용 시작 (while문 안에서 ai 와 user 가 메시지 주고받는 과정 반복)
     try:
         await websocket.send_text("Please upload an image of a dish! :)")  # 챗봇이 한 말 send
-        image_data = await websocket.receive_text()
+        image_byte = await websocket.receive_bytes()
 
         # 대화 시작 멘트 - 밑반찬 설명
         from app.chat.askdish import get_img_response
-        dish_explain = get_img_response(image_data, str_user_diet)
+        dish_explain = get_img_response(image_byte, str_user_diet)
         await websocket.send_text(dish_explain)
         chat_history.add_ai_message(dish_explain)
 
@@ -229,9 +229,9 @@ async def websocket_endpoint(websocket: WebSocket):  # askmenu
     try:
         await websocket.send_text("Please upload an image of a menu board! :)")  # 챗봇이 한 말 send
         # 1) 이미지 데이터 받기
-        image_data = await websocket.receive_text()
+        image_byte = await websocket.receive_bytes()
         from app.chat.askmenu import get_img_response
-        menu_explain = get_img_response(image_data, str_user_diet)
+        menu_explain = get_img_response(image_byte, str_user_diet)
 
         # 2) 이미지 데이터 -> 이미지 인식 ~ 메뉴 설명 내용 생성 -> chat_history에 전달 (!!!챗봇으로 출력은 XXX!!!)
         system_message = SystemMessage(content=menu_explain)
