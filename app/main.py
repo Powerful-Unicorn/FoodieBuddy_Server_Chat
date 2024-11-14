@@ -1,7 +1,6 @@
-import os
 import re
 
-import openai
+from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.messages import SystemMessage
@@ -11,17 +10,19 @@ from langchain_openai import ChatOpenAI
 from starlette.middleware.cors import CORSMiddleware
 
 from app.chat.recommendation import dishimg_gen
-from app.database import fetch_user
+from app.database.database import fetch_user, add_user, add_menu
 
 # main.py는 FastAPI 프로젝트의 전체적인 환경을 설정하는 파일
 # 포트번호는 8000
 app = FastAPI()
 
+load_dotenv()
+
 # 환경 변수 로드 (API 키 등)
-openai.api_key = os.getenv("OPENAI_API_KEY")
-ingredients_api_key = os.getenv("INGREDIENTS_API_KEY")
-serp_api_key = os.getenv("SERP_API_KEY")
-stability_api_key = os.getenv("STABILITY_API_KEY")
+# openai.api_key = os.getenv("OPENAI_API_KEY")
+# ingredients_api_key = os.getenv("INGREDIENTS_API_KEY")
+# serp_api_key = os.getenv("SERP_API_KEY")
+# stability_api_key = os.getenv("STABILITY_API_KEY")
 
 #########
 # 이부분 db의 dietary restriction을 가져오는 코드로 수정해야함
@@ -287,3 +288,13 @@ def hello():
 @app.get(("/user"))
 def get_user():
     fetch_user()
+
+
+@app.post(("/user"))
+def post_user():
+    add_user()
+
+
+@app.post(("/menu"))
+def post_user():
+    add_menu()
