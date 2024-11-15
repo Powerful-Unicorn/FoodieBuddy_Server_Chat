@@ -126,6 +126,10 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.send_text(response.content)  # 챗봇이 한 말 send
             chat_history.add_ai_message(response.content)
 
+            if response.content.startswith("**"):
+                menu_info = response.content.splitlines()[0]
+                add_menu(menu_info)
+
             user_message = await websocket.receive_text()  # 유저가 한 말 receive
             if user_message.lower() == 'x':
                 await websocket.send_text("Chat ended.")  # 챗봇이 한 말 send

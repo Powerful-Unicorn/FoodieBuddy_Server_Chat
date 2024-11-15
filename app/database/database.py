@@ -35,7 +35,7 @@ def fetch_user():
     connection = get_localdb_connection()
     try:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM user")  # user: 테이블 이름
+            cursor.execute("SELECT * FROM foodiebuddyDB.user")  # user: 테이블 이름
             result = cursor.fetchall()
             print(result)
             return result
@@ -57,15 +57,55 @@ def add_user():
         connection.close()
 
 
-def add_menu():
+def add_menu(menu_info):
+    # **와 (랑 )를 기준으로 문자열 자르기
+    import re
+    split_text = re.split(r'\*\*|\(|\)', menu_info)
+
+    # 결과에서 빈 문자열 제거
+    split_text = [part for part in split_text if part]
+    menu_name = split_text[0]
+    menu_pronunciation = split_text[1]
+
+    print(menu_name)
+    print(menu_pronunciation)
+
     connection = get_localdb_connection()
+
     try:
         with connection.cursor() as cursor:
-            cursor.execute(
-                "INSERT INTO foodiebuddyDB.menu (is_bookmarked, name, pronunciation, star) VALUES (false, 'Spicy Kimchi Fried Rice', 'Kimchi Bokkeumbap', 1)")
+
+            # query = "INSERT INTO foodiebuddyDB.menu (menu, quantity) VALUES (%s, %s, %s)"
+            # values = ("Fried Rice", "Kimchi Bokkeumbap", 1)
+            # cursor.execute(query, values)
+
+            count = cursor.execute(
+                f"SELECT * FROM foodiebuddyDB.menu WHERE pronunciation = '{menu_pronunciation}';")
+
             result = cursor.fetchall()
-            print(result)
-            return result
+            # print(result)
+
+            if count != 0:
+                print(f"'{menu_name}', '{menu_pronunciation}' exists in database")
+                print(result)
+                result_str = str(result[0])  # 리스트의 첫번째 아이템을 문자열로 변환
+                menu_id = result_str.split(',')[0] + '}'
+                print(menu_id)
+                return menu_id
+            else:
+                cursor.execute(
+                    f"INSERT INTO foodiebuddyDB.menu (is_bookmarked, name, pronunciation, star) VALUES (false, '{menu_name}', '{menu_pronunciation}', 0)")
+                print(f"'{menu_name}', '{menu_pronunciation}' added to database")
+                cursor.execute(
+                    f"SELECT * FROM foodiebuddyDB.menu WHERE pronunciation = '{menu_pronunciation}';")
+                result = cursor.fetchall()
+                print(result)
+                result_str = str(result[0])  # 리스트의 첫번째 아이템을 문자열로 변환
+                menu_id = result_str.split(',')[0] + '}'
+                print(menu_id)
+                return menu_id
+            # result = cursor.fetchall()
+            # return result
     finally:
         connection.commit()
         connection.close()
