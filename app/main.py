@@ -56,7 +56,7 @@ for category in user_diet:
 
 # WebSocket 핸들러
 @app.websocket("/recommendation")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket):  # recommendation
     await websocket.accept()  # 웹소켓 연결 accept
 
     # 1. 채팅 상호작용 시작 전
@@ -123,12 +123,14 @@ async def websocket_endpoint(websocket: WebSocket):
                 except Exception as e:
                     await websocket.send_text(f"Error: {str(e)}")
 
-            await websocket.send_text(response.content)  # 챗봇이 한 말 send
-            chat_history.add_ai_message(response.content)
-
+            global menu_id
+            menu_id = ""
             if response.content.startswith("**"):
                 menu_info = response.content.splitlines()[0]
-                add_menu(menu_info)
+                menu_id = add_menu(menu_info)
+
+            await websocket.send_text(menu_id + response.content)  # 챗봇이 한 말 send
+            chat_history.add_ai_message(response.content)
 
             user_message = await websocket.receive_text()  # 유저가 한 말 receive
             if user_message.lower() == 'x':
@@ -298,7 +300,6 @@ def get_user():
 def post_user():
     add_user()
 
-
-@app.post(("/menu"))
-def post_user():
-    add_menu()
+# @app.post(("/menu"))
+# def post_menu():
+#     add_menu()
