@@ -70,17 +70,18 @@ def add_menu(menu_info):
     print(menu_name)
     print(menu_pronunciation)
 
-    connection = get_localdb_connection()
+    # connection = get_localdb_connection()
+    connection = get_rds_connection()
 
     try:
         with connection.cursor() as cursor:
 
-            # query = "INSERT INTO foodiebuddyDB.menu (menu, quantity) VALUES (%s, %s, %s)"
+            # query = "INSERT INTO foodiebuddy.menu (menu, quantity) VALUES (%s, %s, %s)"
             # values = ("Fried Rice", "Kimchi Bokkeumbap", 1)
             # cursor.execute(query, values)
 
             count = cursor.execute(
-                f"SELECT * FROM foodiebuddyDB.menu WHERE pronunciation = '{menu_pronunciation}';")
+                f"SELECT * FROM foodiebuddy.menu WHERE pronunciation = '{menu_pronunciation}';")
 
             result = cursor.fetchall()
             # print(result)
@@ -94,10 +95,10 @@ def add_menu(menu_info):
                 return menu_id
             else:
                 cursor.execute(
-                    f"INSERT INTO foodiebuddyDB.menu (is_bookmarked, name, pronunciation, star) VALUES (false, '{menu_name}', '{menu_pronunciation}', 0)")
+                    f"INSERT INTO foodiebuddy.menu (is_bookmarked, name, pronunciation, star) VALUES (false, '{menu_name}', '{menu_pronunciation}', 0)")
                 print(f"'{menu_name}', '{menu_pronunciation}' added to database")
                 cursor.execute(
-                    f"SELECT * FROM foodiebuddyDB.menu WHERE pronunciation = '{menu_pronunciation}';")
+                    f"SELECT * FROM foodiebuddy.menu WHERE pronunciation = '{menu_pronunciation}';")
                 result = cursor.fetchall()
                 print(result)
                 result_str = str(result[0])  # 리스트의 첫번째 아이템을 문자열로 변환
