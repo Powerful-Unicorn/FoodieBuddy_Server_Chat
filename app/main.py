@@ -55,8 +55,8 @@ for category in user_diet:
 ####################################################################################################################################
 
 # WebSocket 핸들러
-@app.websocket("/recommendation")
-async def websocket_endpoint(websocket: WebSocket):  # recommendation
+@app.websocket("/recommendation/{user_id}")
+async def websocket_endpoint(user_id: int, websocket: WebSocket):  # recommendation
     await websocket.accept()  # 웹소켓 연결 accept
 
     # 1. 채팅 상호작용 시작 전
@@ -127,7 +127,7 @@ async def websocket_endpoint(websocket: WebSocket):  # recommendation
             menu_id = ""
             if response.content.startswith("**"):
                 menu_info = response.content.splitlines()[0]
-                menu_id = add_menu(menu_info)
+                menu_id = add_menu(menu_info, user_id)
 
             await websocket.send_text(menu_id + response.content)  # 챗봇이 한 말 send
             chat_history.add_ai_message(response.content)
@@ -143,7 +143,7 @@ async def websocket_endpoint(websocket: WebSocket):  # recommendation
         print("Client disconnected")
 
 
-@app.websocket("/askdish")
+@app.websocket("/askdish/{user_id}")
 async def websocket_endpoint(websocket: WebSocket):  # askdish
     await websocket.accept()  # 웹소켓 연결 accept
 
@@ -199,7 +199,7 @@ async def websocket_endpoint(websocket: WebSocket):  # askdish
         print("Client disconnected")
 
 
-@app.websocket("/askmenu")
+@app.websocket("/askmenu/{user_id}")
 async def websocket_endpoint(websocket: WebSocket):  # askmenu
     await websocket.accept()  # 웹소켓 연결 accept
 

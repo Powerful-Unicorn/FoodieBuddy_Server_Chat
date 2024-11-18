@@ -35,7 +35,7 @@ def fetch_user():
     connection = get_localdb_connection()
     try:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM foodiebuddyDB.user")  # user: 테이블 이름
+            cursor.execute("SELECT * FROM foodiebuddy.user")  # user: 테이블 이름
             result = cursor.fetchall()
             print(result)
             return result
@@ -48,7 +48,7 @@ def add_user():
     try:
         with connection.cursor() as cursor:
             cursor.execute(
-                "INSERT INTO foodiebuddyDB.user (dairy, egg, email, fruit, gluten, meat, nut, other, password, religion, seafood, username, vegetable, vegetarian) VALUES (null, null, 'aaa@aaaa', null, true, null, null, null, 'aaa', '', null, null, 'garlic', '')")
+                "INSERT INTO foodiebuddy.user (dairy, egg, email, fruit, gluten, meat, nut, other, password, religion, seafood, username, vegetable, vegetarian) VALUES (null, null, 'aaa@aaaa', null, true, null, null, null, 'aaa', '', null, null, 'garlic', '')")
             result = cursor.fetchall()
             print(result)
             return result
@@ -57,7 +57,7 @@ def add_user():
         connection.close()
 
 
-def add_menu(menu_info):
+def add_menu(menu_info, user_id):
     # **와 (랑 )를 기준으로 문자열 자르기
     import re
     split_text = re.split(r'\*\*|\(|\)', menu_info)
@@ -69,9 +69,10 @@ def add_menu(menu_info):
 
     print(menu_name)
     print(menu_pronunciation)
+    print(user_id)
 
-    # connection = get_localdb_connection()
-    connection = get_rds_connection()
+    connection = get_localdb_connection()
+    # connection = get_rds_connection()
 
     try:
         with connection.cursor() as cursor:
@@ -95,8 +96,8 @@ def add_menu(menu_info):
                 return menu_id
             else:
                 cursor.execute(
-                    f"INSERT INTO foodiebuddy.menu (is_bookmarked, name, pronunciation, star) VALUES (false, '{menu_name}', '{menu_pronunciation}', 0)")
-                print(f"'{menu_name}', '{menu_pronunciation}' added to database")
+                    f"INSERT INTO foodiebuddy.menu (is_bookmarked, name, pronunciation, star, user_id) VALUES (false, '{menu_name}', '{menu_pronunciation}', 0, {user_id})")
+                print(f"'{menu_name}', '{menu_pronunciation}', user_id: {user_id} added to database")
                 cursor.execute(
                     f"SELECT * FROM foodiebuddy.menu WHERE pronunciation = '{menu_pronunciation}';")
                 result = cursor.fetchall()
