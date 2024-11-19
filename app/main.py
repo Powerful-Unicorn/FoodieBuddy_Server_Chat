@@ -10,7 +10,7 @@ from langchain_openai import ChatOpenAI
 from starlette.middleware.cors import CORSMiddleware
 
 from app.chat.recommendation import dishimg_gen
-from app.database.database import fetch_user, add_user, add_menu
+from app.database.database import fetch_user, add_user, add_menu, fetch_user_diet
 
 # main.py는 FastAPI 프로젝트의 전체적인 환경을 설정하는 파일
 # 포트번호는 8000
@@ -43,11 +43,16 @@ user_sample = [
 
 user_diet = user_sample[0]["diet"]
 str_user_diet = ""
+print(user_diet)
+print("str_user_diet: " + str_user_diet)
 
 for category in user_diet:
     str_user_diet += category + ":"
     for i in user_diet[category]:
         str_user_diet += i + ","
+
+print(user_diet)
+print("str_user_diet: " + str_user_diet)
 
 
 ###########
@@ -63,10 +68,12 @@ async def websocket_endpoint(user_id: int, websocket: WebSocket):  # recommendat
     model = ChatOpenAI(model="gpt-4o")
     chat_history = ChatMessageHistory()
 
+    str_user_info = get_user_diet(user_id)
+    print(str_user_info)
     recommend_prompt = f"""
       ## Instructions
       You are a kind expert in Korean cuisine. You will chat with a user in English to recommend a dish to the user based on the user's dietary restrictions and additional information.
-      The user's dietary restrictions are {str_user_diet}. 
+      The user's information and dietary restrictions are {str_user_info}. Start a conversation with talking about this information.
 
       Everytime you mention the dish name, YOU MUST USE THIS FORM: The dish name in English(The pronunciation of its korean name). 
       For example, "**Kimchi Stew(Kimchi Jjigae)**", "**Grilled Pork Belly(Samgyeopsal)**".
@@ -293,7 +300,61 @@ def hello():
 
 @app.get(("/user"))
 def get_user():
-    fetch_user()
+    return fetch_user()
+
+
+@app.get("/user/diet/{user_id}")
+def get_user_diet(user_id: int):
+    data_list = fetch_user_diet(user_id)
+
+    # 결과를 저장할 리스트
+    results = []
+
+    # 리스트의 각 딕셔너리에 대해 처리
+    for data in data_list:
+        # 결과 문자열을 저장할 리스트
+        result = []
+
+        # 각 항목을 확인하며 조건에 맞는 항목을 문자열로 추가
+        for key, value in data.items():
+            if value not in [None, "\u0000", "", b'\x00']:  # None 또는 \u0000은 무시
+                if value == b'\x01':  # \u0001이면 key만 추가
+                    result.append(key)
+                else:  # 그 외의 경우 key: value 형식으로 추가
+                    result.append(f"{key}: {value}")
+
+        # 하나의 사용자에 대한 결과를 저장
+        results.append(", ".join(result))
+        # print(result)
+    # print(results)
+    for string in results:
+        print(string)
+        return string
+
+    # # 함수 호출
+    # final_strings = get_user_diet(data)
+    #
+    # # 결과 출력
+
+    # 결과 문자열을 저장할 리스트
+    # result_list = []
+    #
+    # # 각 항목을 확인하며 조건에 맞는 항목을 문자열로 추가
+    # for key, value in data.items():
+    #     # 값이 유효한 경우 처리
+    #     if value not in [None, "\u0000"]:  # None 또는 \u0000은 무시
+    #         if value == "\u0001":  # \u0001이면 key만 추가
+    #             result_list.append(key)
+    #         else:  # 그 외의 경우 key: value 형식으로 추가
+    #             result_list.append(f"{key}: {value}")
+    #
+    # # 리스트를 콤마로 연결하여 최종 문자열 생성
+    # final_string = ", ".join(result_list)
+    #
+    # # 결과 출력
+    # print(final_string)
+    #
+    # return final_string
 
 
 @app.post(("/user"))

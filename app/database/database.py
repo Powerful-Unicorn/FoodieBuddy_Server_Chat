@@ -32,10 +32,68 @@ def get_localdb_connection():
 
 
 def fetch_user():
-    connection = get_rds_connection()
+    # connection = get_rds_connection()
+    connection = get_localdb_connection()
     try:
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM foodiebuddy.user")  # user: 테이블 이름
+            result = cursor.fetchall()
+            print(result)
+            return result
+    finally:
+        connection.close()
+
+
+def fetch_user_diet(user_id):
+    connection = get_localdb_connection()
+    try:
+        with connection.cursor() as cursor:
+            # cursor.execute("SELECT * FROM foodiebuddy.user")
+            query = (
+                "SELECT user_id, username, dairy, egg, fruit, gluten, meat, nut, other, religion, seafood, vegetable, vegetarian "
+                "FROM foodiebuddy.user "
+                f"WHERE (user_id = {user_id}) "
+                "AND ((dairy IS NOT NULL AND dairy != '') "  # WHERE (user_id IS {user_id})
+                "OR (egg IS NOT NULL AND egg != '' AND egg != FALSE) "
+                "OR (fruit IS NOT NULL AND fruit != '') "
+                "OR (gluten IS NOT NULL AND gluten != '' AND gluten != FALSE) "
+                "OR (meat IS NOT NULL AND meat != '') "
+                "OR (nut IS NOT NULL AND nut != '') "
+                "OR (other IS NOT NULL AND other != '') "
+                "OR (religion IS NOT NULL AND religion != '') "
+                "OR (seafood IS NOT NULL AND seafood != '') "
+                "OR (vegetable IS NOT NULL AND vegetable != '') "
+                "OR (vegetarian IS NOT NULL AND vegetarian != ''));")
+            print(query)
+            cursor.execute(query)
+            result = cursor.fetchall()
+            print(result)
+            return result
+    finally:
+        connection.close()
+
+
+def fetch_diet():
+    connection = get_localdb_connection()
+    try:
+        with connection.cursor() as cursor:
+            # cursor.execute("SELECT * FROM foodiebuddy.user")
+            query = (
+                "SELECT user_id, username, dairy, egg, fruit, gluten, meat, nut, other, religion, seafood, vegetable, vegetarian "
+                "FROM foodiebuddy.user "
+                "WHERE (dairy IS NOT NULL AND dairy != '') "
+                "OR (egg IS NOT NULL AND egg != '' AND egg != FALSE) "
+                "OR (fruit IS NOT NULL AND fruit != '') "
+                "OR (gluten IS NOT NULL AND gluten != '' AND gluten != FALSE) "
+                "OR (meat IS NOT NULL AND meat != '') "
+                "OR (nut IS NOT NULL AND nut != '') "
+                "OR (other IS NOT NULL AND other != '') "
+                "OR (religion IS NOT NULL AND religion != '') "
+                "OR (seafood IS NOT NULL AND seafood != '') "
+                "OR (vegetable IS NOT NULL AND vegetable != '') "
+                "OR (vegetarian IS NOT NULL AND vegetarian != '');")
+            print(query)
+            cursor.execute(query)
             result = cursor.fetchall()
             print(result)
             return result
@@ -71,8 +129,8 @@ def add_menu(menu_info, user_id):
     print(menu_pronunciation)
     print(user_id)
 
-    # connection = get_localdb_connection()
-    connection = get_rds_connection()
+    connection = get_localdb_connection()
+    # connection = get_rds_connection()
 
     try:
         with connection.cursor() as cursor:

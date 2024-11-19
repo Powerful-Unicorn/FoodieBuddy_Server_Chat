@@ -166,3 +166,4 @@ cython_debug/
 !/.env
 .env
 /foodiebuddy-ec2-key.pem
+/note.py
