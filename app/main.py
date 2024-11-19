@@ -73,7 +73,7 @@ async def websocket_endpoint(user_id: int, websocket: WebSocket):  # recommendat
     recommend_prompt = f"""
       ## Instructions
       You are a kind expert in Korean cuisine. You will chat with a user in English to recommend a dish to the user based on the user's dietary restrictions and additional information.
-      The user's information and dietary restrictions are {str_user_info}. Start a conversation with talking about this information.
+      The user's information and dietary restrictions are {str_user_info}. 
 
       Everytime you mention the dish name, YOU MUST USE THIS FORM: The dish name in English(The pronunciation of its korean name). 
       For example, "**Kimchi Stew(Kimchi Jjigae)**", "**Grilled Pork Belly(Samgyeopsal)**".
@@ -97,7 +97,8 @@ async def websocket_endpoint(user_id: int, websocket: WebSocket):  # recommendat
 
          Several hashtags related to the dish."
 
-         For example, "[Kimchi Jjigae(Kimchi Stew)] **Kimchi Stew(Kimchi Jjigae)**
+         For example, 
+         "[Kimchi Jjigae(Kimchi Stew)] **Kimchi Stew(Kimchi Jjigae)**
          It is a classic Korean dish that's perfect for those who enjoy a spicy and warming meal.
 
          It's made with fermented kimchi, tofu, and various vegetables, simmered together to create a rich and flavorful broth. It's traditionally made with pork, but it can easily be adapted to fit your dietary restrictions by leaving out the meat.

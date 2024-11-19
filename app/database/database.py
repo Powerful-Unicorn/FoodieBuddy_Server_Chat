@@ -142,13 +142,13 @@ def add_menu(menu_info, user_id):
             # cursor.execute(query, values)
 
             count = cursor.execute(
-                f"SELECT * FROM foodiebuddy.menu WHERE pronunciation = '{menu_pronunciation}';")
+                f"SELECT * FROM foodiebuddy.menu WHERE pronunciation = '{menu_pronunciation}' AND user_id = '{user_id}';")
 
             result = cursor.fetchall()
             # print(result)
 
             if count != 0:
-                print(f"'{menu_name}', '{menu_pronunciation}' exists in database")
+                print(f"'{menu_name}', '{menu_pronunciation}', user_id: {user_id} exists in database")
                 print(result)
                 result_str = str(result[0])  # 리스트의 첫번째 아이템을 문자열로 변환
                 menu_id = result_str.split(',')[0] + '}'
@@ -157,9 +157,10 @@ def add_menu(menu_info, user_id):
             else:
                 cursor.execute(
                     f"INSERT INTO foodiebuddy.menu (is_bookmarked, name, pronunciation, star, user_id) VALUES (false, '{menu_name}', '{menu_pronunciation}', 0, {user_id})")
+                connection.commit()
                 print(f"'{menu_name}', '{menu_pronunciation}', user_id: {user_id} added to database")
                 cursor.execute(
-                    f"SELECT * FROM foodiebuddy.menu WHERE pronunciation = '{menu_pronunciation}';")
+                    f"SELECT * FROM foodiebuddy.menu WHERE pronunciation = '{menu_pronunciation}' AND user_id = '{user_id}';")
                 result = cursor.fetchall()
                 print(result)
                 result_str = str(result[0])  # 리스트의 첫번째 아이템을 문자열로 변환
