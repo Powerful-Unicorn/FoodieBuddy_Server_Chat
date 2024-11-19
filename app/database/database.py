@@ -32,8 +32,8 @@ def get_localdb_connection():
 
 
 def fetch_user():
-    # connection = get_rds_connection()
-    connection = get_localdb_connection()
+    connection = get_rds_connection()
+    # connection = get_localdb_connection()
     try:
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM foodiebuddy.user")  # user: 테이블 이름
@@ -45,7 +45,8 @@ def fetch_user():
 
 
 def fetch_user_diet(user_id):
-    connection = get_localdb_connection()
+    connection = get_rds_connection()
+    # connection = get_localdb_connection()
     try:
         with connection.cursor() as cursor:
             # cursor.execute("SELECT * FROM foodiebuddy.user")
@@ -74,7 +75,8 @@ def fetch_user_diet(user_id):
 
 
 def fetch_diet():
-    connection = get_localdb_connection()
+    connection = get_rds_connection()
+    # connection = get_localdb_connection()
     try:
         with connection.cursor() as cursor:
             # cursor.execute("SELECT * FROM foodiebuddy.user")
@@ -129,8 +131,8 @@ def add_menu(menu_info, user_id):
     print(menu_pronunciation)
     print(user_id)
 
-    connection = get_localdb_connection()
-    # connection = get_rds_connection()
+    # connection = get_localdb_connection()
+    connection = get_rds_connection()
 
     try:
         with connection.cursor() as cursor:
