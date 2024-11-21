@@ -3,6 +3,7 @@ import re
 import xml.etree.ElementTree as ET
 
 import requests
+from dotenv import load_dotenv
 from fastapi import WebSocket, WebSocketDisconnect
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.messages import SystemMessage
@@ -13,7 +14,9 @@ from langchain_openai import ChatOpenAI
 from app.database.database import add_menu
 from app.main import get_user_diet
 
-os.environ["OPENAI_API_KEY"] = "API key"
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+STABILITY_API_KEY = os.getenv("STABILITY_API_KEY")
 
 
 def search_ingredients(dish_name):
@@ -68,7 +71,7 @@ def dishimg_gen(dish_name):
     response = requests.post(
         f"https://api.stability.ai/v2beta/stable-image/generate/ultra",
         headers={
-            "authorization": f"API key",
+            "authorization": f"{STABILITY_API_KEY}",
             "accept": "image/*"
         },
         files={"none": ''},
@@ -79,9 +82,10 @@ def dishimg_gen(dish_name):
     )
 
     if response.status_code == 200:
-        filename = dish_name.lower().replace(" ", "")
-        with open(f"./images/{filename}_test.png", 'wb') as file:
-            file.write(response.content)
+        return response.content
+        # filename = dish_name.lower().replace(" ", "")
+        # with open(f"./images/{filename}_test.png", 'wb') as file:
+        #     file.write(response.content)
 
     else:
         raise Exception(str(response.json()))

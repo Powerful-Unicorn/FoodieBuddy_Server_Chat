@@ -8,47 +8,7 @@ def collaborative_filtering(user: int):
     # connection = get_rds_connection()
     connection = get_localdb_connection()
 
-    # 유저 한명 식이제한 불러오기
     cursor = connection.cursor()
-    cursor.execute("SHOW COLUMNS FROM user")
-    diets_list_dic = cursor.fetchall()
-
-    # 변환 코드
-    diets_list = tuple(
-        (
-            item['Field'],  # Field
-            item['Type'],  # Type
-            item['Null'],  # Null
-            item['Key'],  # Key
-            item['Default'],  # Default
-            item['Extra']  # Extra
-        )
-        for item in diets_list_dic
-    )
-
-    cursor.execute(f"SELECT * FROM user Where user_id = {user}")
-    result_dic = cursor.fetchall()
-    result = (tuple(result_dic[0].values()),)
-    user_diets = list(result[0])
-    user_info = {}
-
-    for i in range(len(diets_list)):
-        if diets_list[i][0] not in ('user_id', 'email', 'password', 'username'):
-            user_info[diets_list[i][0]] = user_diets[i]
-
-    str_user_diet = f"Religion: {user_info['religion']}, Vegetarian: {user_info['vegetarian']}. Details: "
-    for k, v in user_info.items():
-        if k == 'vegetarian' or k == 'religion':
-            continue
-        if v is None or v == b'\x00':
-            continue
-
-        if v == b'\x01':
-            str_user_diet += k + ', '
-        else:
-            str_user_diet += k + ':' + v + ', '
-
-    str_user_diet = str_user_diet[:-2] + '.'
 
     # 유저 한명에 대해 collaborative filtering 계산
     user_id = user
@@ -133,3 +93,52 @@ def collaborative_filtering(user: int):
     return cf_prompt
 
     # recommend_history = recommendation(str_user_diet, cf_prompt)
+
+
+def get_user_info(user_id: int):
+    # connection = get_rds_connection()
+    connection = get_localdb_connection()
+
+    # 유저 한명 식이제한 불러오기
+    cursor = connection.cursor()
+    cursor.execute("SHOW COLUMNS FROM user")
+    diets_list_dic = cursor.fetchall()
+
+    # 변환 코드
+    diets_list = tuple(
+        (
+            item['Field'],  # Field
+            item['Type'],  # Type
+            item['Null'],  # Null
+            item['Key'],  # Key
+            item['Default'],  # Default
+            item['Extra']  # Extra
+        )
+        for item in diets_list_dic
+    )
+
+    cursor.execute(f"SELECT * FROM user Where user_id = {user_id}")
+    result_dic = cursor.fetchall()
+    result = (tuple(result_dic[0].values()),)
+    user_diets = list(result[0])
+    user_info = {}
+
+    for i in range(len(diets_list)):
+        if diets_list[i][0] not in ('user_id', 'email', 'password', 'username'):
+            user_info[diets_list[i][0]] = user_diets[i]
+
+    str_user_diet = f"Religion: {user_info['religion']}, Vegetarian: {user_info['vegetarian']}. Details: "
+    for k, v in user_info.items():
+        if k == 'vegetarian' or k == 'religion':
+            continue
+        if v is None or v == b'\x00':
+            continue
+
+        if v == b'\x01':
+            str_user_diet += k + ', '
+        else:
+            str_user_diet += k + ':' + v + ', '
+
+    str_user_diet = str_user_diet[:-2] + '.'
+
+    return str_user_diet
