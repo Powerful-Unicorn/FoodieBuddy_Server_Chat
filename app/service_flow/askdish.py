@@ -87,9 +87,6 @@ def get_img_response_prompt(param_dict):
 
 
 def get_img_response(image_byte, str_user_info):
-    # 파일 오픈해서 읽어올때 쓰는 코드 -> 주석처리
-    # with open(img_path, "rb") as image_file:
-    #     base64_img = base64.b64encode(image_file.read()).decode('utf-8')
     model = ChatOpenAI(model="gpt-4o")
 
     extension = imghdr.what(None, h=image_byte)  # image_data의 확장자 확인
@@ -110,15 +107,6 @@ async def askdish_chat(user_id: int, websocket: WebSocket):
     # 채팅 사용 모델 - 파인 튜닝하면 여기에 쓸 모델 id가 바뀜
     model = ChatOpenAI(model="gpt-4o")
     chat_history = ChatMessageHistory()
-
-    # # 대화 시작 멘트 - 밑반찬 설명
-    # dish_name = get_img_response(dish_img, str_user_info)
-    # system_message = SystemMessage(content=dish_name)
-    # chat_history.add_message(system_message)
-    #
-    # ingredients = search_ingredients(dish_name)
-    # ingredients_message = SystemMessage(content=ingredients)
-    # chat_history.add_message(ingredients_message)
 
     str_user_info = get_user_info(user_id)
 
@@ -165,11 +153,6 @@ async def askdish_chat(user_id: int, websocket: WebSocket):
         await websocket.send_text("Please upload an image of a dish! :)")  # 챗봇이 한 말 send
         image_byte = await websocket.receive_bytes()  # 이미지 (바이너리) 수신
 
-        # from app.service_flow.askdish import get_img_response
-        # dish_explain = get_img_response(image_byte, str_user_info)  # dish_explain 얻기
-        # await websocket.send_text(dish_explain)
-        # chat_history.add_ai_message(dish_explain)
-
         # 대화 시작 멘트 - 밑반찬 설명
         dish_name = get_img_response(image_byte, str_user_info)
         system_message = SystemMessage(content=dish_name)
@@ -190,9 +173,6 @@ async def askdish_chat(user_id: int, websocket: WebSocket):
                 break
             chat_history.add_user_message(user_message)
 
-            # response = chain.invoke({"messages": chat_history.messages})
-            # await websocket.send_text(response.content)  # 챗봇이 한 말 send
-            # chat_history.add_ai_message(response.content)
         return chat_history.messages
 
     except WebSocketDisconnect:
@@ -246,6 +226,3 @@ def get_user_info(user_id: int):
     str_user_diet = str_user_diet[:-2] + '.'
 
     return str_user_diet
-
-# 함수 실행
-# askdish_history = askdish_chat(dish_img, str_user_info)

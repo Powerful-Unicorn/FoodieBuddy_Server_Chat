@@ -18,15 +18,15 @@ def get_rds_connection():
     )
 
 
-def get_localdb_connection():
-    return pymysql.connect(
-        host=os.getenv('DB_HOST_LOCAL'),
-        port=3306,
-        user='root',
-        password=os.getenv('DB_PASSWORD_LOCAL'),
-        database=os.getenv('DB_NAME_LOCAL'),
-        cursorclass=DictCursor
-    )
+# def get_localdb_connection():
+#     return pymysql.connect(
+#         host=os.getenv('DB_HOST_LOCAL'),
+#         port=3306,
+#         user='root',
+#         password=os.getenv('DB_PASSWORD_LOCAL'),
+#         database=os.getenv('DB_NAME_LOCAL'),
+#         cursorclass=DictCursor
+#     )
 
 
 # def get_sshtunnel_connection():
@@ -173,10 +173,6 @@ def add_menu(menu_info, user_id):
     try:
         with connection.cursor() as cursor:
 
-            # query = "INSERT INTO foodiebuddy.menu (menu, quantity) VALUES (%s, %s, %s)"
-            # values = ("Fried Rice", "Kimchi Bokkeumbap", 1)
-            # cursor.execute(query, values)
-
             count = cursor.execute(
                 f"SELECT * FROM foodiebuddy.menu WHERE pronunciation = '{menu_pronunciation}' AND user_id = '{user_id}';")
 
@@ -203,8 +199,7 @@ def add_menu(menu_info, user_id):
                 menu_id = result_str.split(',')[0] + '}'
                 print(menu_id)
                 return menu_id
-            # result = cursor.fetchall()
-            # return result
+
     finally:
         connection.commit()
         connection.close()

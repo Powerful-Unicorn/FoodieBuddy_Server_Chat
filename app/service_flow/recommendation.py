@@ -83,9 +83,6 @@ def dishimg_gen(dish_name):
 
     if response.status_code == 200:
         return response.content
-        # filename = dish_name.lower().replace(" ", "")
-        # with open(f"./images/{filename}_test.png", 'wb') as file:
-        #     file.write(response.content)
 
     else:
         raise Exception(str(response.json()))
