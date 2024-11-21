@@ -1,17 +1,11 @@
-
-import requests
 import xml.etree.ElementTree as ET
 
-
+import requests
 from bs4 import BeautifulSoup
-
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
 # 랭체인 관련 import들
 from langchain_openai import ChatOpenAI
-from langchain_core.output_parsers import StrOutputParser
-
-from langchain_core.prompts import ChatPromptTemplate
-
-
 
 
 def search_ingredients(dish_name):
@@ -30,7 +24,7 @@ def search_ingredients(dish_name):
 
     url = 'http://apis.data.go.kr/1390802/AgriFood/FdFood/getKoreanFoodFdFoodList'
     myKey = 'API key'
-    params = {'serviceKey': '6KMoh6rjEGBq/v8QvaX/3/KAj0DppT17EgLbwzR1IrrWDX+yiTuMtBEgo35a9fgZHz+5aW/wzd0Kv4RDo7Zuyg==',
+    params = {'serviceKey': '',
               'service_Type': 'xml', 'Page_No': '1', 'Page_Size': '20', 'food_Name': response}
 
     ingredients_response = requests.get(url, params=params)
@@ -133,7 +127,7 @@ def dishimg_gen(dish_name) -> bytes:  # 바이트 스트림 타입을 return
     response = requests.post(
         f"https://api.stability.ai/v2beta/stable-image/generate/ultra",
         headers={
-            "authorization": "sk-TIMRKlFafzEJGCro7de6QVt27PB1ufe8m2w6B1JwpLMUJxO5",
+            "authorization": "",
             "accept": "image/*"
         },
         files={"none": ''},
@@ -153,4 +147,3 @@ def dishimg_gen(dish_name) -> bytes:  # 바이트 스트림 타입을 return
     else:
         print("dishimg_gen<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         raise Exception(str(response.json()))
-
