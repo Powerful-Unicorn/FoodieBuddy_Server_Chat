@@ -2,10 +2,7 @@ import re
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.messages import SystemMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_openai import ChatOpenAI
 from starlette.middleware.cors import CORSMiddleware
 
 from app.collaborative_filtering import collaborative_filtering
@@ -101,35 +98,38 @@ async def askdish_endpoint(user_id: int, websocket: WebSocket):
 async def askmenu_endpoint(user_id: int, websocket: WebSocket):
     await websocket.accept()  # 웹소켓 연결 accept
 
-    # 1. 채팅 상호작용 시작 전
-    model = ChatOpenAI(model="gpt-4o")
-    chat_history = ChatMessageHistory()
+    from app.service_flow.askmenu import askmenu_chat
+    await askmenu_chat(user_id, websocket)
 
-    str_user_info = get_user_diet(user_id)
-    print("user_info: " + str_user_info)
+    # # 1. 채팅 상호작용 시작 전
+    # model = ChatOpenAI(model="gpt-4o")
+    # chat_history = ChatMessageHistory()
+
+    # str_user_info = get_user_diet(user_id)
+    # print("user_info: " + str_user_info)
 
     # askmenu용 프롬프트
-    askmenu_prompt = f"""
-    You are a kind expertin Korean cuisine. You will chat with a user in English to help them choose a dish at a restaurant based on the user's dietary restrictions.
-    The user's dietary restrictions are {str_user_info}.
-    If the user asks any questions during the conversation, kindly answer them and continue the dialogue.
-    Using the instructions below, perform the following steps:
+    # askmenu_prompt = f"""
+    # You are a kind expertin Korean cuisine. You will chat with a user in English to help them choose a dish at a restaurant based on the user's dietary restrictions.
+    # The user's dietary restrictions are {str_user_info}.
+    # If the user asks any questions during the conversation, kindly answer them and continue the dialogue.
+    # Using the instructions below, perform the following steps:
+    #
+    # 1. You will be given a list of dish names. Start the conversation by briefly explaining each dish in one sentence.
+    # 2. Ask the user which dish they want to order and wait for their response.
+    # 3. Based on the user's choice, you must start your output with "[the dish name(English)]" and explain the dish in detail, considering the user's dietary restrictions.
+    # 4. Ask if the user would like to order the dish.
+    # 5. If the user wants to order the dish, continue to step 6. If not, return to step 2 and provide the list and brief explanations again.
+    # 6. Ask if the user has any questions about the dish.
+    # 7. End the conversation.
+    # """
 
-    1. You will be given a list of dish names. Start the conversation by briefly explaining each dish in one sentence.
-    2. Ask the user which dish they want to order and wait for their response.
-    3. Based on the user's choice, you must start your output with "[the dish name(English)]" and explain the dish in detail, considering the user's dietary restrictions.
-    4. Ask if the user would like to order the dish.
-    5. If the user wants to order the dish, continue to step 6. If not, return to step 2 and provide the list and brief explanations again.
-    6. Ask if the user has any questions about the dish.
-    7. End the conversation.
-    """
-
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", askmenu_prompt),
-            MessagesPlaceholder(variable_name="messages"),
-        ]
-    )
+    # prompt = ChatPromptTemplate.from_messages(
+    #     [
+    #         ("system", askmenu_prompt),
+    #         MessagesPlaceholder(variable_name="messages"),
+    #     ]
+    # )
 
     chain = prompt | model
 
@@ -154,6 +154,7 @@ async def askmenu_endpoint(user_id: int, websocket: WebSocket):
 
             if response.content.startswith("["):
                 dish_name = re.search(r'\[([\D]+)\]', response.content).group(1)
+
                 from app.service_flow.askmenu import dishimg_gen
                 image_bytes = dishimg_gen(dish_name)  ## send
                 try:
