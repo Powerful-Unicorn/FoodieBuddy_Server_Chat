@@ -3,7 +3,6 @@ import os
 import pymysql
 from dotenv import load_dotenv
 from pymysql.cursors import DictCursor
-from sshtunnel import SSHTunnelForwarder
 
 load_dotenv()  # .env 파일에서 환경 변수 로드
 
@@ -30,46 +29,46 @@ def get_localdb_connection():
     )
 
 
-def get_sshtunnel_connection():
-    # EC2 연결 설정
-    ssh_host = os.getenv('SSH_HOST')
-    ssh_user = os.getenv('SSH_USER')
-    ssh_key_file = os.getenv('SSH_KEY_FILE')
-
-    # RDS 데이터베이스 설정
-    rds_host = os.getenv('RDS_HOST')
-    rds_port = 3306
-
-    server = SSHTunnelForwarder(
-        (ssh_host, 22),
-        ssh_username=ssh_user,
-        ssh_pkey=ssh_key_file,
-        remote_bind_address=(rds_host, rds_port),
-        local_bind_address=('127.0.0.1', 3307)  # 로컬 머신에서 3307 포트를 통해 연결
-    )
-
-    try:
-        server.start()
-        # print(f"SSH 터널이 열렸습니다. 로컬 포트 {server.local_bind_port}을 통해 RDS에 연결할 수 있습니다.")
-    except Exception as e:
-        print(f"SSH 터널을 여는 동안 오류가 발생했습니다: {e}")
-        import traceback
-        traceback.print_exc()
-
-    connection = pymysql.connect(
-        host='127.0.0.1',  # 로컬 호스트에서 접근
-        user=os.getenv('RDS_USER'),
-        password=os.getenv('RDS_PASSWORD'),
-        db=os.getenv('RDS_NAME'),
-        port=server.local_bind_port  # SSH 터널의 포트 (server.local_bind_port 사용)
-    )
-
-    return connection
+# def get_sshtunnel_connection():
+#     # EC2 연결 설정
+#     ssh_host = os.getenv('SSH_HOST')
+#     ssh_user = os.getenv('SSH_USER')
+#     ssh_key_file = os.getenv('SSH_KEY_FILE')
+#
+#     # RDS 데이터베이스 설정
+#     rds_host = os.getenv('RDS_HOST')
+#     rds_port = 3306
+#
+#     server = SSHTunnelForwarder(
+#         (ssh_host, 22),
+#         ssh_username=ssh_user,
+#         ssh_pkey=ssh_key_file,
+#         remote_bind_address=(rds_host, rds_port),
+#         local_bind_address=('127.0.0.1', 3307)  # 로컬 머신에서 3307 포트를 통해 연결
+#     )
+#
+#     try:
+#         server.start()
+#         # print(f"SSH 터널이 열렸습니다. 로컬 포트 {server.local_bind_port}을 통해 RDS에 연결할 수 있습니다.")
+#     except Exception as e:
+#         print(f"SSH 터널을 여는 동안 오류가 발생했습니다: {e}")
+#         import traceback
+#         traceback.print_exc()
+#
+#     connection = pymysql.connect(
+#         host='127.0.0.1',  # 로컬 호스트에서 접근
+#         user=os.getenv('RDS_USER'),
+#         password=os.getenv('RDS_PASSWORD'),
+#         db=os.getenv('RDS_NAME'),
+#         port=server.local_bind_port  # SSH 터널의 포트 (server.local_bind_port 사용)
+#     )
+#
+#     return connection
 
 
 def fetch_user():
-    # connection = get_rds_connection()
-    connection = get_localdb_connection()
+    connection = get_rds_connection()
+    # connection = get_localdb_connection()
     try:
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM foodiebuddy.user")  # user: 테이블 이름
@@ -81,8 +80,8 @@ def fetch_user():
 
 
 def fetch_user_diet(user_id):
-    # connection = get_rds_connection()
-    connection = get_localdb_connection()
+    connection = get_rds_connection()
+    # connection = get_localdb_connection()
     # connection = get_sshtunnel_connection()
     try:
         with connection.cursor() as cursor:
@@ -112,8 +111,8 @@ def fetch_user_diet(user_id):
 
 
 def fetch_diet():
-    # connection = get_rds_connection()
-    connection = get_localdb_connection()
+    connection = get_rds_connection()
+    # connection = get_localdb_connection()
     try:
         with connection.cursor() as cursor:
             # cursor.execute("SELECT * FROM foodiebuddy.user")
@@ -168,8 +167,8 @@ def add_menu(menu_info, user_id):
     print(menu_pronunciation)
     print(user_id)
 
-    connection = get_localdb_connection()
-    # connection = get_rds_connection()
+    # connection = get_localdb_connection()
+    connection = get_rds_connection()
 
     try:
         with connection.cursor() as cursor:

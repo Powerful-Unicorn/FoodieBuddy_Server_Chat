@@ -12,7 +12,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 
-from app.database.database import get_localdb_connection
+from app.database.database import get_rds_connection
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -200,8 +200,8 @@ async def askdish_chat(user_id: int, websocket: WebSocket):
 
 
 def get_user_info(user_id: int):
-    # connection = get_rds_connection()
-    connection = get_localdb_connection()
+    connection = get_rds_connection()
+    # connection = get_localdb_connection()
 
     # 유저 한명 식이제한 불러오기
     cursor = connection.cursor()

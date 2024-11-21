@@ -1,12 +1,12 @@
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
-from app.database.database import get_localdb_connection
+from app.database.database import get_rds_connection
 
 
 def collaborative_filtering(user: int):
-    # connection = get_rds_connection()
-    connection = get_localdb_connection()
+    connection = get_rds_connection()
+    # connection = get_localdb_connection()
 
     cursor = connection.cursor()
 
@@ -96,8 +96,8 @@ def collaborative_filtering(user: int):
 
 
 def get_user_info(user_id: int):
-    # connection = get_rds_connection()
-    connection = get_localdb_connection()
+    connection = get_rds_connection()
+    # connection = get_localdb_connection()
 
     # 유저 한명 식이제한 불러오기
     cursor = connection.cursor()
