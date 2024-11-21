@@ -18,44 +18,13 @@ app = FastAPI()
 
 load_dotenv()
 
+
 # 환경 변수 로드 (API 키 등)
 # openai.api_key = os.getenv("OPENAI_API_KEY")
 # ingredients_api_key = os.getenv("INGREDIENTS_API_KEY")
 # serp_api_key = os.getenv("SERP_API_KEY")
 # stability_api_key = os.getenv("STABILITY_API_KEY")
 
-#########
-# 이부분 db의 dietary restriction을 가져오는 코드로 수정해야함
-user_sample = [
-    {"name": "John",
-     "diet": {"meat": ["red meat", "other meat"],
-              "seafood": ["shrimp"],
-              "gluten(wheat)": []
-              }},
-    {"name": "Julia",
-     "diet": {"meat": ["red meat"],
-              "honey": [],
-              "nuts": ["peanuts"],
-              "gluten(wheat)": [],
-              "vegetables": ["tomato"]
-              }},
-]
-
-user_diet = user_sample[0]["diet"]
-str_user_diet = ""
-print(user_diet)
-print("str_user_diet: " + str_user_diet)
-
-for category in user_diet:
-    str_user_diet += category + ":"
-    for i in user_diet[category]:
-        str_user_diet += i + ","
-
-print(user_diet)
-print("str_user_diet: " + str_user_diet)
-
-
-###########
 
 ####################################################################################################################################
 
