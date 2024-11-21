@@ -72,7 +72,7 @@ def dishimg_gen(dish_name):
     response = requests.post(
         f"https://api.stability.ai/v2beta/stable-image/generate/ultra",
         headers={
-            "authorization": STABILITY_API_KEY,
+            "authorization": "sk-TIMRKlFafzEJGCro7de6QVt27PB1ufe8m2w6B1JwpLMUJxO5",
             "accept": "image/*"
         },
         files={"none": ''},
