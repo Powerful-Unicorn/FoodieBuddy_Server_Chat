@@ -17,6 +17,7 @@ from app.main import get_user_diet
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 STABILITY_API_KEY = os.getenv("STABILITY_API_KEY")
+SERP_API_KEY = os.getenv("SERP_API_KEY")
 
 
 def search_ingredients(dish_name):
@@ -33,7 +34,7 @@ def search_ingredients(dish_name):
     response = chain.invoke({"dish_name": f"{dish_name}", })
 
     url = 'http://apis.data.go.kr/1390802/AgriFood/FdFood/getKoreanFoodFdFoodList'
-    myKey = 'API key'
+    myKey = SERP_API_KEY
     params = {'serviceKey': myKey, 'service_Type': 'xml', 'Page_No': '1', 'Page_Size': '20', 'food_Name': response}
 
     ingredients_response = requests.get(url, params=params)
@@ -71,7 +72,7 @@ def dishimg_gen(dish_name):
     response = requests.post(
         f"https://api.stability.ai/v2beta/stable-image/generate/ultra",
         headers={
-            "authorization": f"{STABILITY_API_KEY}",
+            "authorization": STABILITY_API_KEY,
             "accept": "image/*"
         },
         files={"none": ''},
