@@ -42,60 +42,59 @@ async def recommendation_endpoint(user_id: int, websocket: WebSocket):
 async def askdish_endpoint(user_id: int, websocket: WebSocket):
     await websocket.accept()  # 웹소켓 연결 accept
 
-    # 1. 채팅 상호작용 시작 전
-    model = ChatOpenAI(model="gpt-4o")
-    chat_history = ChatMessageHistory()
+    from app.service_flow.askdish import askdish_chat
+    await askdish_chat(user_id, websocket)
 
-    str_user_info = get_user_diet(user_id)
-    print("user_info: " + str_user_info)
+    # # 1. 채팅 상호작용 시작 전
+    # model = ChatOpenAI(model="gpt-4o")
+    # chat_history = ChatMessageHistory()
 
-    # askdish용 프롬프트
-    askdish_prompt = f"""
-    ## Instructions
-    You are a kind expert in Korean cuisine. You will chat with a user in English to help them understand a dish at a restaurant based on the user's dietary restrictions.
-    The user's dietary restrictions are {str_user_info}. 
+    # # askdish용 프롬프트
+    # askdish_prompt = f"""
+    # ## Instructions
+    # You are a kind expert in Korean cuisine. You will chat with a user in English to help them understand a dish at a restaurant based on the user's dietary restrictions.
+    # The user's dietary restrictions are {str_user_info}.
+    #
+    # First, explain the dish from the image.
+    # Next, check if the user have any question. If user ask any questions about the dish, explain it kindly.
+    # """
 
-    First, explain the dish from the image.
-    Next, check if the user have any question. If user ask any questions about the dish, explain it kindly.
-    """
+    # prompt = ChatPromptTemplate.from_messages(
+    #     [
+    #         ("system", askdish_prompt),
+    #         MessagesPlaceholder(variable_name="messages"),
+    #     ]
+    # )
 
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", askdish_prompt),
-            MessagesPlaceholder(variable_name="messages"),
-        ]
-    )
-
-    chain = prompt | model
+    # chain = prompt | model
 
     # 2. 채팅 상호작용 시작 (while문 안에서 ai 와 user 가 메시지 주고받는 과정 반복)
-    try:
-        await websocket.send_text("Please upload an image of a dish! :)")  # 챗봇이 한 말 send
-        image_byte = await websocket.receive_bytes()
+    # try:
+    # await websocket.send_text("Please upload an image of a dish! :)")  # 챗봇이 한 말 send
+    # image_byte = await websocket.receive_bytes()
 
-        # 대화 시작 멘트 - 밑반찬 설명
+    # # 대화 시작 멘트 - 밑반찬 설명
+    #
 
-        from app.service_flow.askdish import get_img_response
-        dish_explain = get_img_response(image_byte, str_user_info)
-        await websocket.send_text(dish_explain)
-        chat_history.add_ai_message(dish_explain)
+    # from app.old.askdish import get_img_response
+    # dish_explain = get_img_response(image_byte, str_user_info)
+    #     await websocket.send_text(dish_explain)
+    #     chat_history.add_ai_message(dish_explain)
 
-        while True:
-            user_message = await websocket.receive_text()  # 유저가 한 말 receive
-            if user_message.lower() == 'x':
-                await websocket.send_text("Chat ended.")  # 챗봇이 한 말 send
-                break
-            chat_history.add_user_message(user_message)
+    # while True:
+    # user_message = await websocket.receive_text()  # 유저가 한 말 receive
+    # if user_message.lower() == 'x':
+    #     await websocket.send_text("Chat ended.")  # 챗봇이 한 말 send
+    #     break
+    # chat_history.add_user_message(user_message)
 
-            response = chain.invoke({"messages": chat_history.messages})
-            await websocket.send_text(response.content)  # 챗봇이 한 말 send
-            chat_history.add_ai_message(response.content)
-        # return chat_history.messages
+    # response = chain.invoke({"messages": chat_history.messages})
+    # await websocket.send_text(response.content)  # 챗봇이 한 말 send
+    # chat_history.add_ai_message(response.content)
+    # return chat_history.messages
 
-
-
-    except WebSocketDisconnect:
-        print("Client disconnected")
+    # except WebSocketDisconnect:
+    #     print("Client disconnected")
 
 
 @app.websocket("/askmenu/{user_id}")
@@ -208,6 +207,7 @@ def get_user_diet(user_id: int):
 
     # 결과를 저장할 리스트
     results = []
+    print(data_list)
 
     # 리스트의 각 딕셔너리에 대해 처리
     for data in data_list:

@@ -2,12 +2,13 @@ import base64
 import imghdr
 import os
 
+from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 
-os.environ[
-    "OPENAI_API_KEY"] = "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"
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
 def get_img_response_prompt(param_dict):
@@ -46,15 +47,13 @@ def get_img_response(image_byte, str_user_diet):
     # 밑반찬 답변 모델 - 파인 튜닝하면 여기에 쓸 모델 id가 바뀜
     model = ChatOpenAI(model="gpt-4o")
 
-    # image_binary = base64.b64decode(image_base64)
     extension = imghdr.what(None, h=image_byte)  # image_data의 확장자 확인
     print(f"Detected extension: {extension}")
     # print(f"image_url : data:image/{extension};base64,{image_data}")
     image_base64 = base64.b64encode(image_byte).decode('utf-8')  # 인코딩된 결과는 bytes이므로, 이를 문자열로 변환해 줍니다.
 
     chain = get_img_response_prompt | model | StrOutputParser()
-    response = chain.invoke({"question": "What's the name of this korean side dish?",
-                             "diet": str_user_diet,
+    response = chain.invoke({"diet": str_user_diet,
                              "image_url": f"data:image/{extension};base64,{image_base64}"
                              }
                             )
