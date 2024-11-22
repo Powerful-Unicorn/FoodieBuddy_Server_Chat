@@ -127,12 +127,13 @@ async def recommendation_chat(user_id: int, cf_prompt: str, websocket: WebSocket
          
          Several hashtags related to the dish."
          
-         For example, "**Kimchi Stew(Kimchi Jjigae)**
-         It is a classic Korean dish that's perfect for those who enjoy a spicy and warming meal.
+         For example, 
+         "**Kimchi Stew(Kimchi Jjigae)**\n\n
          
-         It's made with fermented kimchi, tofu, and various vegetables, simmered together to create a rich and flavorful broth. It's traditionally made with pork, but it can easily be adapted to fit your dietary restrictions by leaving out the meat.
+         It is a classic Korean dish that's perfect for those who enjoy a spicy and warming meal.\n
+         It's made with fermented kimchi, tofu, and various vegetables, simmered together to create a rich and flavorful broth. It's traditionally made with pork, but it can easily be adapted to fit your dietary restrictions by leaving out the meat.\n\n
          
-         #spicy #polular #warm"
+         #spicy #polular #warm" 
       3. If the user don't like the suggestion, go back to step 2.
       4. If the user decide what to eat, end the conversation.  
       """

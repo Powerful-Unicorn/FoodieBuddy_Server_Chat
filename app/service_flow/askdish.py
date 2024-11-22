@@ -129,10 +129,10 @@ async def askdish_chat(user_id: int, websocket: WebSocket):
       Whether it is suitable for the user or not.
       
       Several hashtags related to the dish."
-      For example, "This dish is Braised Burdock Root(Ueongjorim), a type of side dish made with burdock root.
+      For example, "This dish is **Braised Burdock Root(Ueongjorim)**, a type of side dish made with burdock root.\n\n
       
-      It typically includes burdock root, soy sauce, sugar, sesame oil, and sometimes garlic. Since you avoid gluten, you should check if the soy sauce used in this preparation is gluten-free. 
-      If it contains regular soy sauce, it might not be suitable for you.
+      It typically includes burdock root, soy sauce, sugar, sesame oil, and sometimes garlic. Since you avoid gluten, you should check if the soy sauce used in this preparation is gluten-free. \n
+      If it contains regular soy sauce, it might not be suitable for you.\n\n
       
       #healthy #side_dish #vegetable"
   2. Check if the user have any question. If user ask any questions about the dish, explain it kindly.
