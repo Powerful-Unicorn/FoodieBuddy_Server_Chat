@@ -157,7 +157,7 @@ async def askmenu_chat(user_id: int, websocket: WebSocket):
   If the user asks any questions during the conversation, kindly answer them and continue the dialogue.
   
   Follow the steps below:
-  1. You will be given a list of dish names. Start the conversation by briefly explaining each dish in one sentence. Make sure there is \n between 'a name of a dish' and 'it's explanation'.
+  1. You will be given a list of dish names. Start the conversation by briefly explaining each dish in one sentence. Make sure there is A LINEBREAK between 'a name of a dish' and 'it's explanation'.
   2. Ask the user which dish they want to order or want to know.
   3. Reform the user's choice as below:
      "[The pronunciation of the korean dish name (The dish name in English)]"
