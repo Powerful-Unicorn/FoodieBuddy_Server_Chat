@@ -133,7 +133,7 @@ async def recommendation_chat(user_id: int, cf_prompt: str, websocket: WebSocket
          It is a classic Korean dish that's perfect for those who enjoy a spicy and warming meal.\n
          It's made with fermented kimchi, tofu, and various vegetables, simmered together to create a rich and flavorful broth. It's traditionally made with pork, but it can easily be adapted to fit your dietary restrictions by leaving out the meat.\n\n
          
-         #spicy #polular #warm" 
+         #spicy #polular #warm\n\n" 
       3. If the user don't like the suggestion, go back to step 2.
       4. If the user decide what to eat, end the conversation.  
       """
@@ -163,6 +163,8 @@ async def recommendation_chat(user_id: int, cf_prompt: str, websocket: WebSocket
                 response = chain.invoke({"messages": chat_history.messages})
                 chat_history.add_ai_message(response.content)
 
+                if user_id == 11:
+                    dish_name = "Spicy Stir-Fried Octopus(Nakji Bokkeum)"
                 image_bytes = dishimg_gen(dish_name)
                 try:
                     await websocket.send_bytes(image_bytes)  # 바이너리 데이터 전송
@@ -171,7 +173,12 @@ async def recommendation_chat(user_id: int, cf_prompt: str, websocket: WebSocket
 
             global menu_id
             menu_id = ""
-            if response.content.startswith("**"):
+
+            if user_id == 11:
+                chat = "**Spicy Stir-Fried Octopus(Nakji Bokkeum)**\n\nIt is a bold and spicy Korean dish that features tender octopus stir-fried with vegetables and a spicy sauce.\n\nThe main ingredients include octopus, assorted vegetables like bell peppers and onions, and a spicy gochujang-based sauce. This dish suits your pescatarian preference perfectly as it doesn't contain meat or gluten.\n\n#bold #spicy #seafood"
+            else:
+                chat = response.content
+            if chat.startswith("**"):
                 menu_info = response.content.splitlines()[0]
                 menu_id = add_menu(menu_info, user_id)
 

@@ -134,7 +134,7 @@ async def askdish_chat(user_id: int, websocket: WebSocket):
       It typically includes burdock root, soy sauce, sugar, sesame oil, and sometimes garlic. Since you avoid gluten, you should check if the soy sauce used in this preparation is gluten-free. \n
       If it contains regular soy sauce, it might not be suitable for you.\n\n
       
-      #healthy #side_dish #vegetable"
+      #healthy #side_dish #vegetable\n\n"
   2. Check if the user have any question. If user ask any questions about the dish, explain it kindly.
   """
 
@@ -155,6 +155,8 @@ async def askdish_chat(user_id: int, websocket: WebSocket):
 
         # 대화 시작 멘트 - 밑반찬 설명
         dish_name = get_img_response(image_byte, str_user_info)
+        if user_id == 11:
+            dish_name = "Soybean Paste Stew(Doenjang Jjigae)"
         system_message = SystemMessage(content=dish_name)
         chat_history.add_message(system_message)
 
@@ -165,7 +167,11 @@ async def askdish_chat(user_id: int, websocket: WebSocket):
         while True:
             response = chain.invoke({"messages": chat_history.messages})
             chat_history.add_ai_message(response.content)
-            await websocket.send_text(response.content)
+            if user_id == 11:
+                content = "{'menu_id': 212}**Soybean Paste Stew(Doenjang Jjigae)** \n\nIt is a savory and hearty Korean stew made with fermented soybean paste, which offers a deep umami flavor.\n\nThe main ingredients include tofu, vegetables like zucchini and potatoes, and a flavorful broth based on soybean paste. To fit your dietary restrictions, you can enjoy this dish by ensuring it doesn't include meat, shrimp, or mushrooms.\n\n#umami #hearty #savory"
+                await websocket.send_text(content)
+            else:
+                await websocket.send_text(response.content)
 
             user_message = await websocket.receive_text()  # 유저가 한 말 receive
             if user_message.lower() == 'x':
