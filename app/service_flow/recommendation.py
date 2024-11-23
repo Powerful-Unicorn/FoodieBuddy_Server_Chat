@@ -164,8 +164,10 @@ async def recommendation_chat(user_id: int, cf_prompt: str, websocket: WebSocket
                 chat_history.add_ai_message(response.content)
 
                 if user_id == 11:
-                    dish_name = "Spicy Stir-Fried Octopus(Nakji Bokkeum)"
-                image_bytes = dishimg_gen(dish_name)
+                    with open("NakjiBokkeum.png", "rb") as image_file:
+                        image_bytes = image_file.read()
+                else:
+                    image_bytes = dishimg_gen(dish_name)
                 try:
                     await websocket.send_bytes(image_bytes)  # 바이너리 데이터 전송
                 except Exception as e:
@@ -182,7 +184,7 @@ async def recommendation_chat(user_id: int, cf_prompt: str, websocket: WebSocket
                 menu_info = chat.splitlines()[0]
                 menu_id = add_menu(menu_info, user_id)
 
-            await websocket.send_text(menu_id + response.content)  # 챗봇이 한 말 send
+            await websocket.send_text(menu_id + chat)  # 챗봇이 한 말 send
 
             user_message = await websocket.receive_text()  # 유저가 한 말 receive
             if user_message.lower() == 'x':
