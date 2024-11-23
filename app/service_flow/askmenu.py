@@ -176,8 +176,9 @@ async def askmenu_chat(user_id: int, websocket: WebSocket):
      
      It's made with fermented kimchi, tofu, and various vegetables, simmered together to create a rich and flavorful broth. It's traditionally made with pork, but it can easily be adapted to fit your dietary restrictions by leaving out the meat.
      
-     #spicy #polular #warm"
-  4. Ask if the user would like to order the dish.
+     #spicy #polular #warm (CRLF)
+     (CRLF)"
+  4. Ask if the user would like to order the dish. 
   5. If the user wants to order the dish, continue to step 6. If not, return to step 2 and provide the list and brief explanations again.
   6. Ask if the user has any questions about the dish.
   7. End the conversation.
