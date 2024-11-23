@@ -168,7 +168,7 @@ async def askdish_chat(user_id: int, websocket: WebSocket):
             response = chain.invoke({"messages": chat_history.messages})
             chat_history.add_ai_message(response.content)
             if user_id == 11:
-                content = "{'menu_id': 212}**Soybean Paste Stew(Doenjang Jjigae)** \n\nIt is a savory and hearty Korean stew made with fermented soybean paste, which offers a deep umami flavor.\n\nThe main ingredients include tofu, vegetables like zucchini and potatoes, and a flavorful broth based on soybean paste. To fit your dietary restrictions, you can enjoy this dish by ensuring it doesn't include meat, shrimp, or mushrooms.\n\n#umami #hearty #savory"
+                content = "This dish is **Soybean Paste Stew(Doenjang Jjigae)**, a traditional Korean stew made with soybean paste.\n\nIt typically includes soybean paste, tofu, vegetables like zucchini, and sometimes mushroom, seafood or meat. \n\nSince you are pescatarian and avoid shrimp and mushroom, it's important to confirm if the stew contains any meat, shrimp or mushroom. Mushrooms may not be easily visible if they are cut into small pieces, so please be cautious. \n\nIf it contains only allowable seafood and vegetables, it could be suitable for you.\n\n#Korean_stew #soybean_paste #tofu #vegetarian_friendly"
                 await websocket.send_text(content)
             else:
                 await websocket.send_text(response.content)
