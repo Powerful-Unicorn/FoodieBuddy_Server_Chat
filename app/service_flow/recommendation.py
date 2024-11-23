@@ -149,25 +149,35 @@ async def recommendation_chat(user_id: int, cf_prompt: str, websocket: WebSocket
 
     # 2. 채팅 상호작용 시작 (while문 안에서 ai 와 user 가 메시지 주고받는 과정 반복)
     try:
+        response = chain.invoke({"messages": chat_history.messages})  # recommendation 플로우에선 챗봇이 먼저 말함
+        chat_history.add_ai_message(response.content)
+        await websocket.send_text(response.content)  # 챗봇이 한 말 send
+        user_message = await websocket.receive_text()  # 유저가 한 말 receive
+        chat_history.add_user_message(user_message)
+
+        response = chain.invoke({"messages": chat_history.messages})  # recommendation 플로우에선 챗봇이 먼저 말함
+        chat = response.content
+        if user_id == 11:
+            chat = "[Spicy Stir-Fried Octopus(Nakji Bokkeum)]**Spicy Stir-Fried Octopus(Nakji Bokkeum)**\n\nIt is a bold and spicy Korean dish that features tender octopus stir-fried with vegetables and a spicy sauce.\n\nThe main ingredients include octopus, assorted vegetables like bell peppers and onions, and a spicy gochujang-based sauce. This dish suits your pescatarian preference perfectly as it doesn't contain meat or gluten.\n\n#bold #spicy #seafood"
+
         while True:
-            response = chain.invoke({"messages": chat_history.messages})  # recommendation 플로우에선 챗봇이 먼저 말함
-            chat_history.add_ai_message(response.content)
 
-            if response.content.startswith("["):  # 메뉴 이미지 생성하는 코드
-                dish_name = re.search(r'\[([\D]+)\]', response.content).group(1)
-
-                ingredients = search_ingredients(dish_name)
-                ingredients_message = SystemMessage(content=ingredients)
-                chat_history.add_message(ingredients_message)
-
-                response = chain.invoke({"messages": chat_history.messages})
-                chat_history.add_ai_message(response.content)
-
+            if chat.startswith("["):  # 메뉴 이미지 생성하는 코드
                 if user_id == 11:
+                    chat = chat.split(']')[1]
                     with open("NakjiBokkeum.png", "rb") as image_file:
                         image_bytes = image_file.read()
                 else:
+                    dish_name = re.search(r'\[([\D]+)\]', response.content).group(1)
+
+                    ingredients = search_ingredients(dish_name)
+                    ingredients_message = SystemMessage(content=ingredients)
+                    chat_history.add_message(ingredients_message)
+
+                    response = chain.invoke({"messages": chat_history.messages})
+                    chat_history.add_ai_message(response.content)
                     image_bytes = dishimg_gen(dish_name)
+
                 try:
                     await websocket.send_bytes(image_bytes)  # 바이너리 데이터 전송
                 except Exception as e:
@@ -176,10 +186,10 @@ async def recommendation_chat(user_id: int, cf_prompt: str, websocket: WebSocket
             global menu_id
             menu_id = ""
 
-            if user_id == 11:
-                chat = "**Spicy Stir-Fried Octopus(Nakji Bokkeum)**\n\nIt is a bold and spicy Korean dish that features tender octopus stir-fried with vegetables and a spicy sauce.\n\nThe main ingredients include octopus, assorted vegetables like bell peppers and onions, and a spicy gochujang-based sauce. This dish suits your pescatarian preference perfectly as it doesn't contain meat or gluten.\n\n#bold #spicy #seafood"
-            else:
-                chat = response.content
+            # if user_id == 11:
+            #     chat = "**Spicy Stir-Fried Octopus(Nakji Bokkeum)**\n\nIt is a bold and spicy Korean dish that features tender octopus stir-fried with vegetables and a spicy sauce.\n\nThe main ingredients include octopus, assorted vegetables like bell peppers and onions, and a spicy gochujang-based sauce. This dish suits your pescatarian preference perfectly as it doesn't contain meat or gluten.\n\n#bold #spicy #seafood"
+            # else:
+            #     chat = response.content
             if chat.startswith("**"):
                 menu_info = chat.splitlines()[0]
                 menu_id = add_menu(menu_info, user_id)
@@ -191,6 +201,8 @@ async def recommendation_chat(user_id: int, cf_prompt: str, websocket: WebSocket
                 await websocket.send_text("Chat ended.")  # 챗봇이 한 말 send
                 break
             chat_history.add_user_message(user_message)
+            response = chain.invoke({"messages": chat_history.messages})  # recommendation 플로우에선 챗봇이 먼저 말함
+            chat = response.content
 
         return chat_history.messages
 
