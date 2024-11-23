@@ -179,7 +179,7 @@ async def recommendation_chat(user_id: int, cf_prompt: str, websocket: WebSocket
             else:
                 chat = response.content
             if chat.startswith("**"):
-                menu_info = response.content.splitlines()[0]
+                menu_info = chat.splitlines()[0]
                 menu_id = add_menu(menu_info, user_id)
 
             await websocket.send_text(menu_id + response.content)  # 챗봇이 한 말 send
