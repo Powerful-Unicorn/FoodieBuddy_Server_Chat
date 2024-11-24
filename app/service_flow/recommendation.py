@@ -134,8 +134,8 @@ async def recommendation_chat(user_id: int, cf_prompt: str, websocket: WebSocket
          It's made with fermented kimchi, tofu, and various vegetables, simmered together to create a rich and flavorful broth. It's traditionally made with pork, but it can easily be adapted to fit your dietary restrictions by leaving out the meat.\n\n
          
          #spicy #polular #warm\n\n" 
-      3. If the user don't like the suggestion, go back to step 2.
-      4. If the user decide what to eat, end the conversation.  
+      4. If the user doesn't like the suggestion or wants another suggestion, go back to step 2.
+      5. If the user decides what to eat, end the conversation.   
       """
 
     prompt = ChatPromptTemplate.from_messages(
