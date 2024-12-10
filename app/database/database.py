@@ -18,17 +18,6 @@ def get_rds_connection():
     )
 
 
-# def get_localdb_connection():
-#     return pymysql.connect(
-#         host=os.getenv('DB_HOST_LOCAL'),
-#         port=3306,
-#         user='root',
-#         password=os.getenv('DB_PASSWORD_LOCAL'),
-#         database=os.getenv('DB_NAME_LOCAL'),
-#         cursorclass=DictCursor
-#     )
-
-
 # def get_sshtunnel_connection():
 #     # EC2 연결 설정
 #     ssh_host = os.getenv('SSH_HOST')
