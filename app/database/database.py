@@ -1,5 +1,3 @@
-import os
-
 import pymysql
 from dotenv import load_dotenv
 from pymysql.cursors import DictCursor
@@ -9,11 +7,11 @@ load_dotenv()  # .env 파일에서 환경 변수 로드
 
 def get_rds_connection():
     return pymysql.connect(
-        host=os.getenv('RDS_HOST'),
+        host='foodiebuddy.clo8m062s7ci.ap-northeast-2.rds.amazonaws.com',
         port=3306,
-        user=os.getenv('RDS_USER'),
-        password=os.getenv('RDS_PASSWORD'),
-        database=os.getenv('RDS_DATABASE'),
+        user='admin',
+        password='powerfulunicorn11!',
+        database='foodiebuddy',
         cursorclass=DictCursor
     )
 
