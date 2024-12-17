@@ -6,7 +6,7 @@ pip install -r requirements.txt
 ```
 
 ## 🔧 How to build
-Git clone 을 통한 FastAPI 프로젝트 생성<br><br>
+Git clone 을 통한 FastAPI 프로젝트 생성<br>
    ```
    https://github.com/Powerful-Unicorn/FoodieBuddy_Server_Chat.git
    ```
