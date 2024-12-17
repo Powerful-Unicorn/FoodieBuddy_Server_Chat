@@ -6,10 +6,10 @@ pip install -r requirements.txt
 ```
 
 ## 🔧 How to build
-이 레포지토리는 아래 명령어로 Clone 가능합니다.
-```bash
-
-```
+Git clone 을 통한 FastAPI 프로젝트 생성<br><br>
+   ```
+   https://github.com/Powerful-Unicorn/FoodieBuddy_Server_Chat.git
+   ```
 별도의 빌드는 필요하지 않습니다.
 
 ##  🚀 How to run
