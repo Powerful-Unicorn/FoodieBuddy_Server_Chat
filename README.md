@@ -8,7 +8,7 @@ pip install -r requirements.txt
 ## 🔧 How to build
 이 레포지토리는 아래 명령어로 Clone 가능합니다.
 ```bash
-https://github.com/studio-recoding/NESS_ML.git](https://github.com/Powerful-Unicorn/FoodieBuddy_Server_Chat
+
 ```
 별도의 빌드는 필요하지 않습니다.
 
