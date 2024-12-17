@@ -1,6 +1,6 @@
 
 ## 👩‍💻 Prerequisites
-이 레포지토리는 <img alt="FastAPI" src ="https://img.shields.io/badge/fastapi-009688.svg?&style=for-the-badge&logo=fastapi&logoColor=white"/>기반으로 구현된 애플리케이션으로, `requirements.txt`에 적힌 라이브러리 설치가 사전에 이루어져야 합니다.
+이 레포지토리는 `FastAPI` 기반으로 구현된 애플리케이션으로, `requirements.txt`에 적힌 라이브러리 설치가 사전에 이루어져야 합니다.
 ```bash
 pip install -r requirements.txt
 ```
